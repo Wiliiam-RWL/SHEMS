@@ -54,7 +54,7 @@ location: (**location_id**, customer_id, location_street_num, location_street_na
 4. *As mentioned in the problem desciption, we don't have to model how the system prestored all the event_labels. So we assume that the events are automatically stored into the database. In the project, this process might be simulated by manaully insert data into the model_event table*  
 
 device_model(**model_id**, model_type, model_name), *This is for prestoring devices for user to register*  
-device_registered(**device_id**, model_id, location_id), *This is for devices registered by user*  
+device_registered(**device_id**, model_id, location_id, tag), *This is for devices registered by user*  
 device_event(**device_id**, event_label, event_datetime, event_number), *event_number corresponds to event_label*  
 
 ###  3. Energy Price
