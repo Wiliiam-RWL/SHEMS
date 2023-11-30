@@ -1,1 +1,0 @@
-mysql -h db-project.clt5dhnemxsz.us-east-2.rds.amazonaws.com -u admin -p12345678
