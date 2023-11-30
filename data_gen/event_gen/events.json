@@ -5,15 +5,15 @@
             "model_name": null,
             "events":[
                 {
-                    "event_name": "On",
+                    "event_label": "On",
                     "number": false
                 },
                 {
-                    "event_name":"Off",
+                    "event_label":"Off",
                     "number":false
                 },
                 {
-                    "event_name":"EnergyReport",
+                    "event_label":"EnergyReport",
                     "number":true
                 }
             ]
@@ -23,11 +23,11 @@
             "model_name": null,
             "events":[
                 {
-                    "event_name": "BrightMode",
+                    "event_label": "BrightMode",
                     "number": false
                 },
                 {
-                    "event_name": "DarkMode",
+                    "event_label": "DarkMode",
                     "number":false
                 }
             ]
@@ -37,11 +37,11 @@
             "model_name":null,
             "events":[
                 {
-                    "event_name":"DoorOpen",
+                    "event_label":"DoorOpen",
                     "number":false
                 },
                 {
-                    "event_name":"DoorClose",
+                    "event_label":"DoorClose",
                     "number":false
                 }
             ]
@@ -51,27 +51,27 @@
             "model_name":null,
             "events":[
                 {
-                    "event_name":"Heat",
+                    "event_label":"Heat",
                     "number":false
                 },
                 {
-                    "event_name":"Cool",
+                    "event_label":"Cool",
                     "number":false
                 },
                 {
-                    "event_name":"Fan",
+                    "event_label":"Fan",
                     "number":false
                 },
                 {
-                    "event_name":"WindHigh",
+                    "event_label":"WindHigh",
                     "number":false
                 },
                 {
-                    "event_name":"WindLow",
+                    "event_label":"WindLow",
                     "number":false
                 },
                 {
-                    "event_name": "SetTemp",
+                    "event_label": "SetTemp",
                     "number": true
                 }
             ]
@@ -81,11 +81,11 @@
             "model_name":null,
             "events":[
                 {
-                    "event_name":"StartPlaying",
+                    "event_label":"StartPlaying",
                     "number":false
                 },
                 {
-                    "event_name":"StopPlaying",
+                    "event_label":"StopPlaying",
                     "number":false
                 }
             ]
