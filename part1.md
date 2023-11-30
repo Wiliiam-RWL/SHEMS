@@ -113,6 +113,7 @@ CREATE TABLE device_registered(
     device_id INT AUTO_INCREMENT,
     model_id INT NOT NULL,
     location_id INT NOT NULL,
+    tag VARCHAR(255),
     PRIMARY KEY (device_id),
     FOREIGN KEY (model_id) REFERENCES device_model(model_id),
     FOREIGN KEY (location_id) REFERENCES location(location_id)
