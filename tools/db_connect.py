@@ -4,7 +4,7 @@ try:
     conn = mysql.connector.connect(
         host="db-project.clt5dhnemxsz.us-east-2.rds.amazonaws.com",  # No 'https://' prefix
         user="admin",
-        password="12345678",
+        password="",
         database="shems",
         port=3306,  # or your custom port
     )
