@@ -69,6 +69,10 @@
                 {
                     "event_name":"WindLow",
                     "number":false
+                },
+                {
+                    "event_name": "SetTemp",
+                    "number": true
                 }
             ]
         },
