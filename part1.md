@@ -55,7 +55,7 @@ location: (**location_id**, customer_id, location_street_num, location_street_na
 
 device_model(**model_id**, model_type, model_name), *This is for prestoring devices for user to register*  
 device_registered(**device_id**, model_id, location_id, tag), *This is for devices registered by user*  
-device_event(**device_id**, event_label, event_datetime, event_number), *event_number corresponds to event_label*  
+device_event(**device_id**, **event_label**, **event_datetime**, event_number), *event_number corresponds to event_label*  
 
 ###  3. Energy Price
 energy_price(**zipcode**, **hour_of_day**, price), *Energy prices vary on hourly and locational basis*   
@@ -126,7 +126,7 @@ CREATE TABLE device_event(
     event_datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
     event_label VARCHAR(63) NOT NULL,
     event_number FLOAT,
-    PRIMARY KEY (device_id, event_datetime)
+    PRIMARY KEY (device_id, event_datetime, event_label)
 );
 ```
 6. energy_price(**zipcode**, **hour_of_day**, price)  
