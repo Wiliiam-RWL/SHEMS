@@ -20,7 +20,7 @@ VALUES
         'Apt 1005',
         'New York',
         'NY',
-        '10010'
+        '10003'
     ),
     (
         'Jane',
@@ -42,7 +42,7 @@ VALUES
         'Apt 0701',
         'New York',
         'NY',
-        '10065'
+        '11206'
     ),
     (
         'Bob',
@@ -53,7 +53,7 @@ VALUES
         'Apt 2803',
         'New York',
         'NY',
-        '10007'
+        '11249'
     ),
     (
         'Emily',
