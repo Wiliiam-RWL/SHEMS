@@ -1,0 +1,90 @@
+{
+    "EventList":[
+        {
+            "model_type": "General",
+            "model_name": null,
+            "events":[
+                {
+                    "event_name": "On",
+                    "number": false
+                },
+                {
+                    "event_name":"Off",
+                    "number":false
+                },
+                {
+                    "event_name":"EnergyReport",
+                    "number":true
+                }
+            ]
+        },
+        {
+            "model_type": "Light Bulb",
+            "model_name": null,
+            "events":[
+                {
+                    "event_name": "BrightMode",
+                    "number": false
+                },
+                {
+                    "event_name": "DarkMode",
+                    "number":false
+                }
+            ]
+        },
+        {
+            "model_type":"Refrigerator",
+            "model_name":null,
+            "events":[
+                {
+                    "event_name":"DoorOpen",
+                    "number":false
+                },
+                {
+                    "event_name":"DoorClose",
+                    "number":false
+                }
+            ]
+        },
+        {
+            "model_type":"Air Conditioner",
+            "model_name":null,
+            "events":[
+                {
+                    "event_name":"Heat",
+                    "number":false
+                },
+                {
+                    "event_name":"Cool",
+                    "number":false
+                },
+                {
+                    "event_name":"Fan",
+                    "number":false
+                },
+                {
+                    "event_name":"WindHigh",
+                    "number":false
+                },
+                {
+                    "event_name":"WindLow",
+                    "number":false
+                }
+            ]
+        },
+        {
+            "model_type":"Smart Speaker",
+            "model_name":null,
+            "events":[
+                {
+                    "event_name":"StartPlaying",
+                    "number":false
+                },
+                {
+                    "event_name":"StopPlaying",
+                    "number":false
+                }
+            ]
+        }
+    ]
+}
