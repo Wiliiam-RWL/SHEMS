@@ -154,49 +154,49 @@ CREATE TABLE energy_price(
 2. Calculate the average monthly energy consumption per device type, for the month of August 2022, considering only devices that have been on (i.e., reported data) at least once during that month.
 
    ```sql
-   SELECT d.device_label, AVG(total_energy_consumption) AS average_energy_consumption
+   SELECT dm.model_type, AVG(total_energy_consumption) AS average_energy_consumption
    FROM ( # first compute all the device monthly energy consumption
        SELECT dr.device_id, SUM(de.event_number) AS total_energy_consumption
        FROM device_event de
        JOIN device_registered dr ON de.device_id = dr.device_id
        WHERE de.event_label = 'energy use'
-       AND de.timestamp >= '2022-08-01' AND de.timestamp < '2022-09-01'
+       AND de.event_datetime >= '2022-08-01' AND de.event_datetime < '2022-09-01'
        GROUP BY dr.device_id
        HAVING SUM(de.event_number) IS NOT NULL # only consider devices that have on at least once
    ) AS subquery
    JOIN device_registered dr ON subquery.device_id = dr.device_id
    JOIN device_model dm ON dr.model_id = dm.model_id
-   GROUP BY d.device_type;
+   GROUP BY dm.model_type;
    ```
 
 3. Identify cases where a refrigerator door was left open for more than 30 minutes. Output the date and time, the service location, the device ID, and the refrigerator model.
 
    ```sql
-   SELECT dr.device_od, dr.model_id,
+   SELECT dr.device_id, dr.model_id
    FROM device_event de
    JOIN device_registered dr ON de.device_id = dr.device_id
    JOIN device_model dm ON dr.model_id = dm.model_id
-   WHERE m.event_label = 'door opened'
+   WHERE dm.event_label = 'door opened'
    AND dm.model_type = "refrigerator"
    AND (
      TIMEDIFF (
      (
        SELECT MIN(timestamp)
-       FROM model_event AS m2
-       WHERE m2.device_id = m.device_id
-       AND m2.timestamp > m.timestamp
-       AND m2.event_label = 'door closed'
+       FROM device_event AS de2
+       WHERE  de2.device_id = de.device_id
+       AND de2.timestamp > de.timestamp
+       AND de2.event_label = 'door closed'
      )
-     , m.event_datetime
+     , de.event_datetime
      ) > '00:30:00'
      OR
      (
-       TIMEDIFF(NOW(), m.event_datetime) > '00:30:00'
+       TIMEDIFF(NOW(), de.event_datetime) > '00:30:00'
        AND NOT EXISTS(
          SELECT 1
-         FROM model_event AS m3
-         WHERE m3.device_id = m.device_id
-         AND m2.timestamp > m.timestamp
+         FROM model_event AS de3
+         WHERE de3.device_id = de.device_id
+         AND de3.timestamp > de.timestamp
        )
      )
    )
@@ -211,8 +211,8 @@ CREATE TABLE energy_price(
    JOIN device_registered dr ON de.device_id = dr.device_id
    JOIN location l ON dr.location_id = l.location_id
    JOIN energy_price ep ON ep.zipcode = l.location_zipcode AND ep.hour_of_day = HOUR(de.event_datetime)
-   GROUP BY dr.location_id
    WHERE de.event_label = 'energy use' AND de.event_datetime BETWEEN "2022-08-01" AND "2022-08-31"
+   GROUP BY dr.location_id	
    ```
 
    
