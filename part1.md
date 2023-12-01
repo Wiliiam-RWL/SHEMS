@@ -34,6 +34,9 @@
     - Hour
     - Zip Code
 
+## Entity-Relation Design
+![ER](ER-Grams/ER.png)
+
 ## Tables Design
 ###  1. User & Location Table
 *Assumption:*  
