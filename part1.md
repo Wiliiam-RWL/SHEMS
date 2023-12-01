@@ -95,7 +95,7 @@ CREATE TABLE location(
     num_bedrooms INT NOT NULL,
     num_occupants INT NOT NULL,
     PRIMARY KEY (location_id),
-    FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 ```
 3. device_model  
@@ -115,8 +115,8 @@ CREATE TABLE device_registered(
     location_id INT NOT NULL,
     tag VARCHAR(255),
     PRIMARY KEY (device_id),
-    FOREIGN KEY (model_id) REFERENCES device_model(model_id),
-    FOREIGN KEY (location_id) REFERENCES location(location_id)
+    FOREIGN KEY (model_id) REFERENCES device_model(model_id) ON DELETE CASCADE,
+    FOREIGN KEY (location_id) REFERENCES location(location_id) ON DELETE CASCADE
 );
 ```
 5. device_event  
@@ -127,6 +127,7 @@ CREATE TABLE device_event(
     event_label VARCHAR(63) NOT NULL,
     event_number FLOAT,
     PRIMARY KEY (device_id, event_datetime, event_label)
+    FOREIGN KEY (device_id) REFERENCES device_registered(device_id) ON DELETE CASCADE
 );
 ```
 6. energy_price(**zipcode**, **hour_of_day**, price)  
