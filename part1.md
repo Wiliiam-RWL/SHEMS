@@ -71,7 +71,7 @@ Assumptions:
 ###  2.4.1 User & Location Table
 
 customer: (**customer_id**, first_name, last_name, email, billing_street_num, billing_street_name, billing_unit_number, billing_city, billing_state, billing_zipcode, cpassword)  
-location: (**location_id**, customer_id, location_street_num, location_street_name, location_unit_number, location_city, location_state, location_zipcode, square_feet, num_bedrooms, num_occupants)  
+location: (**location_id**, customer_id, location_street_num, location_street_name, location_unit_number, location_city, location_state, location_zipcode, square_feet, num_bedrooms, start_date, num_occupants)  
 
 ###  2.4.2 Device & Event
 device_model(**model_id**, model_type, model_name), *This is for prestoring devices for user to register*  
@@ -115,6 +115,7 @@ CREATE TABLE location(
     square_feet FLOAT NOT NULL,
     num_bedrooms INT NOT NULL,
     num_occupants INT NOT NULL,
+    start_date DATETIME NOT NULL,
     PRIMARY KEY (location_id),
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
