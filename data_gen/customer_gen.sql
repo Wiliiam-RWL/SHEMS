@@ -8,7 +8,8 @@ INSERT INTO
         billing_unit_number,
         billing_city,
         billing_state,
-        billing_zipcode
+        billing_zipcode,
+        cpassword
     )
 VALUES
     (
@@ -20,7 +21,8 @@ VALUES
         'Apt 1005',
         'New York',
         'NY',
-        '10003'
+        '10003',
+        'HelloPassWord1'
     ),
     (
         'Jane',
@@ -31,7 +33,8 @@ VALUES
         'Apt 2406',
         'New York',
         'NY',
-        '10022'
+        '10022',
+        'HelloPassWord1'
     ),
     (
         'Alice',
@@ -42,7 +45,8 @@ VALUES
         'Apt 0701',
         'New York',
         'NY',
-        '11206'
+        '11206',
+        'HelloPassWord1'
     ),
     (
         'Bob',
@@ -53,7 +57,8 @@ VALUES
         'Apt 2803',
         'New York',
         'NY',
-        '11249'
+        '11249',
+        'HelloPassWord1'
     ),
     (
         'Emily',
@@ -64,5 +69,6 @@ VALUES
         'Apt 1502s',
         'New York',
         'NY',
-        '10005'
+        '10005',
+        'HelloPassWord1'
     );
