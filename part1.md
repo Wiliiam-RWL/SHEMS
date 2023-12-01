@@ -163,7 +163,13 @@ CREATE TABLE energy_price(
 ```
 
 # 4 SQL
-*Before testing the queries, meaningful data has been inserted into the database to ensure the testing results.*  
+*Before testing the queries, meaningful data has been inserted into the database to ensure the testing results:*
+![customer](pic/customer.png)
+![locatoin](pic/locatoin.png)
+![device_model](pic/device_model.png)
+![device_registered](pic/device_registered.png)
+![device_event](pic/device_event.png)
+![energy_price](pic/energy_price.png)
 
 1. List all enrolled devices with their total energy consumption in the last 24 hours, for a specific customer identified by customer ID.   
 *Assume the current time is 2022-08-17 14:00:00(replaced with NOW() in real application scenarios)*  
