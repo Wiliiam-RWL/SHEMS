@@ -1,4 +1,4 @@
-INSERT INTO device_event 
+    INSERT INTO device_event
 (device_id, event_datetime, event_label, event_number) VALUE 
 (1, '2022-08-01 07:06:00', 'On', NULL),
 (1, '2022-08-01 07:11:00', 'EnergyReport', 0.0075),
