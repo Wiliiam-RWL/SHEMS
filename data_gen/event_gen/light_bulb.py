@@ -86,14 +86,14 @@ class LightBulb:
                 if self.mode == "BrightMode":
                     energy = energy * 1.5
                 self.last_update = now
-                event_list.append({"event_label": "EnergyRrport", "number": energy})
+                event_list.append({"event_label": "EnergyReport", "number": energy})
             elif (now - self.last_update).total_seconds() >= 5 * 60:
                 # check if there is need to update energy use
                 energy = ((now - self.last_update).total_seconds() / 60) * self.kwh_min
                 if self.mode == "BrightMode":
                     energy = energy * 1.5
                 self.last_update = now
-                event_list.append({"event_label": "EnergyRrport", "number": energy})
+                event_list.append({"event_label": "EnergyReport", "number": energy})
 
             # randomly set different mode
             if random.randrange(0, 100) == 0:
