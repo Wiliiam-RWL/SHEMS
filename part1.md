@@ -126,7 +126,7 @@ CREATE TABLE device_event(
     event_datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
     event_label VARCHAR(63) NOT NULL,
     event_number FLOAT,
-    PRIMARY KEY (device_id, event_datetime, event_label)
+    PRIMARY KEY (device_id, event_datetime, event_label),
     FOREIGN KEY (device_id) REFERENCES device_registered(device_id) ON DELETE CASCADE
 );
 ```
