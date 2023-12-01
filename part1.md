@@ -194,108 +194,200 @@ GROUP BY
 
 3. Identify cases where a refrigerator door was left open for more than 30 minutes. Output the date and time, the service location, the device ID, and the refrigerator model.
 
-   ```sql
-   SELECT CONCAT(l.location_street_num, ' ', l.location_street_name, ', Unit ', l.location_unit_number, ', ', l.location_city, ', ', l.location_state, ' ', l.location_zipcode) AS location
-   , dr.device_id, dm.model_type, de.event_datetime AS OpenTime
-   FROM device_event de
-   JOIN device_registered dr ON de.device_id = dr.device_id
-   JOIN device_model dm ON dr.model_id = dm.model_id
-   JOIN location l ON dr.location_id = l.location_id
-   WHERE de.event_label = 'DoorOpen'
-   AND dm.model_type = "refrigerator"
-   AND (
-     TIMEDIFF (
-     (
-       SELECT MIN(event_datetime)
-       FROM device_event AS de2
-       WHERE  de2.device_id = de.device_id
-       AND de2.event_datetime > de.event_datetime
-       AND de2.event_label = 'DoorClose'
-     )
-     , de.event_datetime
-     ) > '00:30:00'
-     OR
-     (
-       TIMEDIFF(NOW(), de.event_datetime) > '00:30:00'
-       AND NOT EXISTS(
-         SELECT 1
-         FROM device_event AS de3
-         WHERE de3.device_id = de.device_id
-         AND de3.event_datetime > de.event_datetime
-       )
-     )
-   );
-   ```
+```sql
+SELECT
+    CONCAT(
+        l.location_street_num,
+        ' ',
+        l.location_street_name,
+        ', Unit ',
+        l.location_unit_number,
+        ', ',
+        l.location_city,
+        ', ',
+        l.location_state,
+        ' ',
+        l.location_zipcode
+    ) AS location,
+    dr.device_id,
+    dm.model_type,
+    de.event_datetime AS OpenTime
+FROM
+    device_event de
+    JOIN device_registered dr ON de.device_id = dr.device_id
+    JOIN device_model dm ON dr.model_id = dm.model_id
+    JOIN location l ON l.location_id = dr.location_id
+WHERE
+    de.event_label = 'DoorOpen'
+    AND dm.model_type = 'Refrigerator'
+    AND NOT EXISTS(
+        SELECT
+            *
+        FROM
+            device_event de2
+        WHERE
+            de2.device_id = de.device_id
+            AND de2.event_label = 'DoorClose'
+            AND de2.event_datetime > de.event_datetime
+            AND TIMEDIFF(de2.event_datetime, de.event_datetime) <= '00:30:00'
+    );
+```
 
 4. Calculate the total energy cost for each service location during August 2022, considering the hourly changing energy prices based on zip code.
 
-   ```sql
-   SELECT CONCAT(l.location_street_num, ' ', l.location_street_name, ', Unit ', l.location_unit_number, ', ', l.location_city, ', ', l.location_state, ' ', l.location_zipcode) AS location,
-   dr.location_id, SUM(ep.price * de.event_number) as monthlyCostSum
-   FROM device_event de 
-   JOIN device_registered dr ON de.device_id = dr.device_id
-   JOIN location l ON dr.location_id = l.location_id
-   JOIN energy_price ep ON ep.zipcode = l.location_zipcode AND ep.hour_of_day = HOUR(de.event_datetime)
-   WHERE de.event_label = 'EnergyReport' AND de.event_datetime BETWEEN "2022-08-01" AND "2022-08-31"
-   GROUP BY dr.location_id;
-   ```
+```sql
+SELECT
+    CONCAT(
+        l.location_street_num,
+        ' ',
+        l.location_street_name,
+        ', Unit ',
+        l.location_unit_number,
+        ', ',
+        l.location_city,
+        ', ',
+        l.location_state,
+        ' ',
+        l.location_zipcode
+    ) AS location,
+    dr.location_id,
+    SUM(ep.price * de.event_number) as monthlyCostSum
+FROM
+    device_event de
+    JOIN device_registered dr ON de.device_id = dr.device_id
+    JOIN location l ON dr.location_id = l.location_id
+    JOIN energy_price ep ON ep.zipcode = l.location_zipcode
+    AND ep.hour_of_day = HOUR(de.event_datetime)
+WHERE
+    de.event_label = 'EnergyReport'
+    AND de.event_datetime BETWEEN "2022-08-01"
+    AND "2022-08-31"
+GROUP BY
+    dr.location_id;
+```
 
    
 
 5. For each service location, compute its total energy consumption during August 2022, as a percentage of the average total energy consumption during the same time of other service locations that have a similar square footage (meaning, at most 5% higher or lower square footage). Thus, you would output 150% if a service location with 1000 sqft had 50% higher energy consumption than the average of other service locations that have between 950 and 1050 sqft.
 
-   ```sql
-   # obtain each cost of the location
-   With EachCosts AS(
-     SELECT dr.location_id, SUM(ep.price * de.event_number) as monthlyCostSum, l.square_feet
-     FROM device_event de 
-     JOIN device_registered dr ON de.device_id = dr.device_id
-     JOIN location l ON dr.location_id = l.location_id
-     JOIN energy_price ep ON ep.zipcode = l.location_zipcode AND ep.hour_of_day = HOUR(de.event_datetime)
-     WHERE de.event_label = 'EnergyReport' AND de.event_datetime BETWEEN "2022-08-01" AND "2022-08-31"
-     GROUP BY dr.location_id	
-   ),
-   AvgCosts AS (
-       SELECT E1.location_id, AVG(E2.monthlyCostSum) AS avgSimilarSquareFeetCost
-       FROM  EachCosts E1
-       JOIN EachCosts E2 ON E1.location_id != E2.location_id AND E2.square_feet BETWEEN E1.square_feet * 0.95 AND E1.square_feet * 1.05
-       GROUP BY E1.location_id
-   )
-   SELECT e.location_id, e.monthlyCostSum, a.avgSimilarSquareFeetCost, (e.monthlyCostSum / a.avgSimilarSquareFeetCost) * 100 AS percentageCost
-   FROM EachCosts e
-   JOIN AvgCosts a ON e.location_id = a.location_id;
-   ```
+```sql
+# obtain each cost of the location
+With EachCosts AS(
+    SELECT
+        dr.location_id,
+        SUM(ep.price * de.event_number) as monthlyCostSum,
+        l.square_feet
+    FROM
+        device_event de
+        JOIN device_registered dr ON de.device_id = dr.device_id
+        JOIN location l ON dr.location_id = l.location_id
+        JOIN energy_price ep ON ep.zipcode = l.location_zipcode
+        AND ep.hour_of_day = HOUR(de.event_datetime)
+    WHERE
+        de.event_label = 'EnergyReport'
+        AND de.event_datetime BETWEEN "2022-08-01"
+        AND "2022-08-31"
+    GROUP BY
+        dr.location_id
+),
+AvgCosts AS (
+    SELECT
+        E1.location_id,
+        AVG(E2.monthlyCostSum) AS avgSimilarSquareFeetCost
+    FROM
+        EachCosts E1
+        JOIN EachCosts E2 ON E1.location_id != E2.location_id
+        AND E2.square_feet BETWEEN E1.square_feet * 0.95
+        AND E1.square_feet * 1.05
+    GROUP BY
+        E1.location_id
+)
+SELECT
+    e.location_id,
+    e.monthlyCostSum,
+    a.avgSimilarSquareFeetCost,
+    (e.monthlyCostSum / a.avgSimilarSquareFeetCost) * 100 AS percentageCost
+FROM
+    EachCosts e
+    JOIN AvgCosts a ON e.location_id = a.location_id;
+```
 
    
 
 6. Identify service location(s) that had the highest percentage increase in energy consumption between August and September of 2022.
 
-   ```sql
-   With AugCosts AS (
-     SELECT CONCAT(l.location_street_num, ' ', l.location_street_name, ', Unit ', l.location_unit_number, ', ', 
-     l.location_city, ', ', l.location_state, ' ', l.location_zipcode) AS location,
-     dr.location_id, SUM(ep.price * de.event_number) as monthlyCostSum
-     FROM device_event de 
-     JOIN device_registered dr ON de.device_id = dr.device_id
-     JOIN location l ON dr.location_id = l.location_id
-     JOIN energy_price ep ON ep.zipcode = l.location_zipcode AND ep.hour_of_day = HOUR(de.event_datetime)
-     WHERE de.event_label = 'EnergyReport' AND de.event_datetime BETWEEN "2022-08-01" AND "2022-08-31"
-     GROUP BY dr.location_id	
-   ),
-   SepCosts AS (
-     SELECT CONCAT(l.location_street_num, ' ', l.location_street_name, ', Unit ', l.location_unit_number, ', ', 
-     l.location_city, ', ', l.location_state, ' ', l.location_zipcode) AS location,
-     dr.location_id, SUM(ep.price * de.event_number) as monthlyCostSum
-     FROM device_event de 
-     JOIN device_registered dr ON de.device_id = dr.device_id
-     JOIN location l ON dr.location_id = l.location_id
-     JOIN energy_price ep ON ep.zipcode = l.location_zipcode AND ep.hour_of_day = HOUR(de.event_datetime)
-     WHERE de.event_label = 'EnergyReport' AND de.event_datetime BETWEEN "2022-09-01" AND "2022-09-30"
-     GROUP BY dr.location_id	
-   )
-   SELECT a.location, a.location_id, ((s.monthlyCostSum - a.monthlyCostSum) / a.monthlyCostSum) * 100 AS percentage_increase
-   FROM AugCosts a
-   JOIN SepCosts s ON a.location_id = s.location_id
-   ORDER BY percentage_increase DESC
-   LIMIT 1;
-   ```
+```sql
+With AugCosts AS (
+    SELECT
+        CONCAT(
+            l.location_street_num,
+            ' ',
+            l.location_street_name,
+            ', Unit ',
+            l.location_unit_number,
+            ', ',
+            l.location_city,
+            ', ',
+            l.location_state,
+            ' ',
+            l.location_zipcode
+        ) AS location,
+        dr.location_id,
+        SUM(ep.price * de.event_number) as monthlyCostSum
+    FROM
+        device_event de
+        JOIN device_registered dr ON de.device_id = dr.device_id
+        JOIN location l ON dr.location_id = l.location_id
+        JOIN energy_price ep ON ep.zipcode = l.location_zipcode
+        AND ep.hour_of_day = HOUR(de.event_datetime)
+    WHERE
+        de.event_label = 'EnergyReport'
+        AND de.event_datetime BETWEEN "2022-08-01"
+        AND "2022-08-31"
+    GROUP BY
+        dr.location_id
+),
+SepCosts AS (
+    SELECT
+        CONCAT(
+            l.location_street_num,
+            ' ',
+            l.location_street_name,
+            ', Unit ',
+            l.location_unit_number,
+            ', ',
+            l.location_city,
+            ', ',
+            l.location_state,
+            ' ',
+            l.location_zipcode
+        ) AS location,
+        dr.location_id,
+        SUM(ep.price * de.event_number) as monthlyCostSum
+    FROM
+        device_event de
+        JOIN device_registered dr ON de.device_id = dr.device_id
+        JOIN location l ON dr.location_id = l.location_id
+        JOIN energy_price ep ON ep.zipcode = l.location_zipcode
+        AND ep.hour_of_day = HOUR(de.event_datetime)
+    WHERE
+        de.event_label = 'EnergyReport'
+        AND de.event_datetime BETWEEN "2022-09-01"
+        AND "2022-09-30"
+    GROUP BY
+        dr.location_id
+)
+SELECT
+    a.location,
+    a.location_id,
+    (
+        (s.monthlyCostSum - a.monthlyCostSum) / a.monthlyCostSum
+    ) * 100 AS percentage_increase
+FROM
+    AugCosts a
+    JOIN SepCosts s ON a.location_id = s.location_id
+ORDER BY
+    percentage_increase DESC
+LIMIT
+    1;
+```
