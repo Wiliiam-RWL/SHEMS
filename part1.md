@@ -140,16 +140,17 @@ CREATE TABLE energy_price(
 );
 ```
 # SQL
-1. List all enrolled devices with their total energy consumption in the last 24 hours, for a specific customer identified by customer ID.
+1. List all enrolled devices with their total energy consumption in the last 24 hours, for a specific customer identified by customer ID.  
+*Assume the current time is 2022-08-17 14:00:00*  
 
    ```sql
    SELECT dr.device_id, SUM(de.event_number) AS total_energy_consumption
    FROM device_event de
    JOIN device_registered dr ON de.device_id = dr.device_id
    JOIN location l ON l.location_id = dr.location_id
-   WHERE de.event_label = 'energy use'
-   GROUP BY de.device_id and l.customer_id = "specific customer_id"
-   HAVING MAX(de.event_datetime) >= NOW() - INTERVAL 24 HOUR;
+   WHERE de.event_label = 'EnergyReport' AND customer_id = 1
+   GROUP BY de.device_id
+   HAVING MAX(de.event_datetime) >= '2022-08-17 14:00:00' - INTERVAL 24 HOUR;
    ```
 
 2. Calculate the average monthly energy consumption per device type, for the month of August 2022, considering only devices that have been on (i.e., reported data) at least once during that month.
@@ -160,7 +161,7 @@ CREATE TABLE energy_price(
        SELECT dr.device_id, SUM(de.event_number) AS total_energy_consumption
        FROM device_event de
        JOIN device_registered dr ON de.device_id = dr.device_id
-       WHERE de.event_label = 'energy use'
+       WHERE de.event_label = 'EnergyReport'
        AND de.event_datetime >= '2022-08-01' AND de.event_datetime < '2022-09-01'
        GROUP BY dr.device_id
        HAVING SUM(de.event_number) IS NOT NULL # only consider devices that have on at least once
