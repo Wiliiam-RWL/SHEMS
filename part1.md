@@ -1,6 +1,11 @@
-# Schema Design
+# 1 Introduction
 
-## Need Analysis
+&nbsp;&nbsp;&nbsp;&nbsp;In this project, we will need to design a web-based Smart Home Energy Management System. The project consists of two parts: database design and system implementation. In this part, we will describe a comprehensive database design. The organization of this part is as follows: In [section 2](#2-schema-design), we will conduct a needs analysis for the project, followed by table design, as well as assumptions and justifications for the design. [Section 3](#3-database-creation) introduces the detailed creation of the database schema, specifying each table's columns, data types, and constraints. Finally, we will include some testing samples of the schema in [Section 4](#4-sql). 
+
+# 2 Schema Design
+
+## 2.1 Need Analysis
+Based on the problem description, the information and functionalities needed can be concluded as follows:  
 - User System:
   - Sign up: Name, billing address, email
   - One user <- many locations
@@ -24,7 +29,7 @@
   - Energy consumption
     - info / 5min: energy use
     - switched off: energy use since last update
- - Information format
+ - Event format
    - Device ID
    - time stamp
    - label (e.g. energy_consumption, temperature_lowered, door_opened, ...)
@@ -34,39 +39,52 @@
     - Hour
     - Zip Code
 
-## Entity-Relation Design
+## 2.2 Entity-Relation Design
+Based on the need analysis, the Entity-Relation Graph can be drawn:  
 ![ER](ER-Grams/ER.png)
 
-## Tables Design
-###  1. User & Location Table
-*Assumption:*  
-1. *Each user can only have one billing address. So billing_address could be an attribute in user table*  
-2. *Each home location can only belong to one account, so customer_id & start_date should be an attribute in address table*  
-3. *We assume the location format as the following: (Line 1)street_number street_name (Line 2)unit_number (zip code info)city, state zipcode.*  
-4. *We also asuume the input addresses are all legal(they really exist, and in the right format)*  
+## 2.3 Assumptions and Justifications
+The ER-Gram is calculated based on some assumptions, some of which will actually affect the schema. Below is an description of all the assumptions made:  
+
+### 2.3.1 User & Location
+Assumptions:  
+1. Each user can only have one billing address. So billing_address could be an attribute in user table.  
+2. Each home location can only belong to one account, so customer_id & start_date should be an attribute in address table.  
+3. We assume the location format as the following: (Line 1)street_number street_name (Line 2)unit_number (zip code info)city, state zipcode. Based on the atomic principals, addresses are separated into different columns (e.g. street_num, street_name, ...).  
+4. We also asuume the input addresses are all legal(they really exist, and in the right format). 
+
+### 2.3.2 Device & Event
+Assumptions:  
+1. All the device models are in the list of device_model table, whenever a new device is promoted, we can modify the database to put it into the table.   
+2. User can only register devices of which the models are in the device_model table. So there won't be any records in the *device_registered* table with ambiguous model_id.  
+3. There are only limited number of event_label, and every the event_label revceived by the system should be legal.  
+4. As mentioned in the problem desciption, we don't have to model how the system prestored all the event_labels. So we assume that the events are automatically stored into the database(such process is not modeled). In the project, this process might be simulated by manaully insert data into the model_event table.  
+5. We assume that devices could generate two (or more) events at the same timeframe. However, such events will not have a same event_label. For example, when an AC is turened off, it generates two events: 'Off' and 'EnergyReport' with a same timeframe. Consequently, (device_id, event_label, event_datetime) is a candidate key of the *device_event* table.  
+
+### 2.3.3 Energy Price & Calculation
+Assumptions:
+1. The unit of energy price is *dollars / kwh*. The unit of the energy consumption reported by devices is *kwh*.  
+2. Because the energy price might vary between two consecutive hours, there might be situations where one EnergyReport has a time span across tow hours(e.g. first 2 minites in 7 and the other 3 minutes in 8). In this case, we choose the unit price of the second hour for calculation, resulting in an approximate energy price, which would not have significant difference with the actual price, given that the numbers of kwh used by home devices per 5 minutes are very small, and that the unit price of energy would not vary a lot.  
+
+
+## 2.4 Tables Design
+###  2.4.1 User & Location Table
 
 customer: (**customer_id**, first_name, last_name, email, billing_street_num, billing_street_name, billing_unit_number, billing_city, billing_state, billing_zipcode, cpassword)  
 location: (**location_id**, customer_id, location_street_num, location_street_name, location_unit_number, location_city, location_state, location_zipcode, square_feet, num_bedrooms, num_occupants)  
 
-###  2. Device & Event
-
-*Assumptions:*  
-1. *All the device models are in the list of device_model table, whenever a new device is promoted, we can modify the database to put it into the table*  
-2. *User can only register devices of which the models are in the device_model table*  
-3. *There are only limited number of event_label, and every the event_label revceived by the system should be legal*  
-4. *As mentioned in the problem desciption, we don't have to model how the system prestored all the event_labels. So we assume that the events are automatically stored into the database. In the project, this process might be simulated by manaully insert data into the model_event table*  
-
+###  2.4.2 Device & Event
 device_model(**model_id**, model_type, model_name), *This is for prestoring devices for user to register*  
 device_registered(**device_id**, model_id, location_id, tag), *This is for devices registered by user*  
 device_event(**device_id**, **event_label**, **event_datetime**, event_number), *event_number corresponds to event_label*  
 
-###  3. Energy Price
+###  2.4.3 Energy Price
 energy_price(**zipcode**, **hour_of_day**, price), *Energy prices vary on hourly and locational basis*   
 
-# Database Creation
-*In this part, we choose MySQL to implement the schema*  
+# 3 Database Creation
+*In this part, we choose MySQL to implement the schema.*  
 
-1. customer  
+## 3.1 customer  
 ```sql
 CREATE TABLE customer(
     customer_id INT AUTO_INCREMENT,
@@ -83,7 +101,7 @@ CREATE TABLE customer(
     PRIMARY KEY (customer_id)
 );
 ```
-2. location  
+## 3.2 location  
 ```sql
 CREATE TABLE location(
     location_id INT AUTO_INCREMENT,
@@ -101,7 +119,7 @@ CREATE TABLE location(
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 ```
-3. device_model  
+## 3.3 device_model  
 ```sql
 CREATE TABLE device_model(
     model_id INT AUTO_INCREMENT,
@@ -110,7 +128,7 @@ CREATE TABLE device_model(
     PRIMARY KEY (model_id)
 );
 ```
-4. device_registered  
+## 3.4 device_registered  
 ```sql
 CREATE TABLE device_registered(
     device_id INT AUTO_INCREMENT,
@@ -122,7 +140,7 @@ CREATE TABLE device_registered(
     FOREIGN KEY (location_id) REFERENCES location(location_id) ON DELETE CASCADE
 );
 ```
-5. device_event  
+## 3.5 device_event  
 ```sql
 CREATE TABLE device_event(
     device_id INT NOT NULL,
@@ -133,7 +151,7 @@ CREATE TABLE device_event(
     FOREIGN KEY (device_id) REFERENCES device_registered(device_id) ON DELETE CASCADE
 );
 ```
-6. energy_price(**zipcode**, **hour_of_day**, price)  
+## 3.6 energy_price(**zipcode**, **hour_of_day**, price)  
 ```sql
 CREATE TABLE energy_price(
     zipcode VARCHAR(5),
@@ -142,9 +160,12 @@ CREATE TABLE energy_price(
     PRIMARY KEY (zipcode, hour_of_day)
 );
 ```
-# SQL
-1. List all enrolled devices with their total energy consumption in the last 24 hours, for a specific customer identified by customer ID.  
-*Assume the current time is 2022-08-17 14:00:00*  
+
+# 4 SQL
+*Before testing the queries, meaningful data has been inserted into the database to ensure the testing results.*  
+
+1. List all enrolled devices with their total energy consumption in the last 24 hours, for a specific customer identified by customer ID.   
+*Assume the current time is 2022-08-17 14:00:00(replaced with NOW() in real application scenarios)*  
 
 ```sql
 SELECT
@@ -162,6 +183,8 @@ GROUP BY
 HAVING
     MAX(de.event_datetime) >= '2022-08-17 14:00:00' - INTERVAL 24 HOUR;
 ```
+
+![sql1](./pic/sql1.png)
 
 2. Calculate the average monthly energy consumption per device type, for the month of August 2022, considering only devices that have been on (i.e., reported data) at least once during that month.
 
@@ -191,6 +214,7 @@ FROM
 GROUP BY
     dm.model_type;
 ```
+![sql2](pic/sql2.png)
 
 3. Identify cases where a refrigerator door was left open for more than 30 minutes. Output the date and time, the service location, the device ID, and the refrigerator model.
 
@@ -232,6 +256,7 @@ WHERE
             AND TIMEDIFF(de2.event_datetime, de.event_datetime) <= '00:30:00'
     );
 ```
+![sql3](pic/sql3.png)
 
 4. Calculate the total energy cost for each service location during August 2022, considering the hourly changing energy prices based on zip code.
 
@@ -265,6 +290,7 @@ WHERE
 GROUP BY
     dr.location_id;
 ```
+![sql4](pic/sql4.png)
 
    
 
@@ -272,7 +298,7 @@ GROUP BY
 
 ```sql
 # obtain each cost of the location
-With EachCosts AS(
+WITH EachCosts AS(
     SELECT
         dr.location_id,
         SUM(ep.price * de.event_number) as monthlyCostSum,
@@ -311,13 +337,13 @@ FROM
     EachCosts e
     JOIN AvgCosts a ON e.location_id = a.location_id;
 ```
-
+![sql5](pic/sql5.png)
    
 
 6. Identify service location(s) that had the highest percentage increase in energy consumption between August and September of 2022.
 
 ```sql
-With AugCosts AS (
+WITH AugCosts AS (
     SELECT
         CONCAT(
             l.location_street_num,
@@ -391,3 +417,4 @@ ORDER BY
 LIMIT
     1;
 ```
+![sql6](pic/sql6.png)
