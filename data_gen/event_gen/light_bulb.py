@@ -55,6 +55,56 @@ def get_event_types(model_type: str, data: list):
     return events
 
 
+class LightBulb:
+    def __init__(self, id: int, on_off: str, mode: str) -> None:
+        self.id = id
+        self.on_off = on_off
+        self.mode = mode
+        self.last_update = datetime.datetime(
+            year=2022, month=8, day=1, hour=0, minute=0, second=0
+        )
+        self.kwh_min = 0.001
+
+    def send_event(self, now: datetime.datetime):
+        if self.on_off == "Off":
+            # randomly turn on and off to simulate user operations
+            if random.randrange(0, 4000) == 0:
+                self.on_off = "On"
+                self.last_update = now
+                return [{"event_label": "On", "number": None}]
+            else:
+                return []
+        else:
+            event_list = []
+
+            if random.randrange(0, 50) == 0:
+                # randomly turn off light
+                self.on_off = "Off"
+                event_list.append({"event_label": "Off", "number": None})
+                energy = ((now - self.last_update).total_seconds() / 60) * self.kwh_min
+                if self.mode == "BrightMode":
+                    energy = energy * 1.5
+                self.last_update = now
+                event_list.append({"event_label": "EnergyRrport", "number": energy})
+            elif (now - self.last_update).total_seconds() >= 5 * 60:
+                # check if there is need to update energy use
+                energy = ((now - self.last_update).total_seconds() / 60) * self.kwh_min
+                if self.mode == "BrightMode":
+                    energy = energy * 1.5
+                self.last_update = now
+                event_list.append({"event_label": "EnergyRrport", "number": energy})
+
+            # randomly set different mode
+            if random.randrange(0, 100) == 0:
+                if self.mode == "BrightMode":
+                    self.mode = "DarkMode"
+                    event_list.append({"event_label": "DarkMode", "number": None})
+                else:
+                    self.mode = "BrightMode"
+                    event_list.append({"event_label": "BrightMode", "number": None})
+            return event_list
+
+
 if __name__ == "__main__":
     # get all light bulb id
     conn = get_conn()
@@ -64,15 +114,43 @@ if __name__ == "__main__":
     # get all light bulb events
     fp = open("events.json")
     data = json.load(fp)
+    fp.close()
     events = get_event_types("Light Bulb", data)
 
     # randomly generate events
-    start_date = datetime.datetime(
+    start_datetime = datetime.datetime(
         year=2022, month=8, day=1, hour=0, minute=0, second=0
     )
-    end_date = datetime.datetime(
+    now = start_datetime
+    end_datetime = datetime.datetime(
         year=2022, month=9, day=30, hour=23, minute=59, second=59
     )
 
-    print(start_date)
-    print(end_date)
+    on_offs = ["On", "Off"]  # list of all the states
+    modes = ["DarkMode", "BrightMode"]
+    bulbs = []
+    fp = open("test.txt", "w")
+    fp.write(
+        "INSERT INTO device_event \n(device_id, event_datetime, event_label, event_number) VALUE \n"
+    )
+    sql = "({}, '{}', '{}', {}),\n"
+
+    for lb in lb_list:
+        bulb = LightBulb(lb, "Off", "BrightMode")
+        bulbs.append(bulb)
+
+    while now < end_datetime:
+        now = now + datetime.timedelta(minutes=1)
+        for b in bulbs:
+            event_list = b.send_event(now)
+            for e in event_list:
+                fp.write(
+                    sql.format(
+                        b.id,
+                        now,
+                        e["event_label"],
+                        "NULL" if e["number"] is None else e["number"],
+                    )
+                )
+    fp.write(";")
+    fp.close()
