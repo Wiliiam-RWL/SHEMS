@@ -66,6 +66,7 @@ class LightBulb:
         self.kwh_min = 0.001
 
     def send_event(self, now: datetime.datetime):
+        # this function is used to generated mock data
         if self.on_off == "Off":
             # randomly turn on and off to simulate user operations
             if random.randrange(0, 4000) == 0:
@@ -126,8 +127,6 @@ if __name__ == "__main__":
         year=2022, month=9, day=30, hour=23, minute=59, second=59
     )
 
-    on_offs = ["On", "Off"]  # list of all the states
-    modes = ["DarkMode", "BrightMode"]
     bulbs = []
     fp = open("test.txt", "w")
     fp.write(
