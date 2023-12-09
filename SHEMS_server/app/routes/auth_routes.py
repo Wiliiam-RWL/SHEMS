@@ -1,6 +1,6 @@
 from ..services import check_user_credentials, register_user
 from flask import Blueprint,request, jsonify
-
+from flask_jwt_extended import create_access_token
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -36,7 +36,8 @@ def login():
     # You should add additional validation for the input data here
 
     if check_user_credentials(email, password):
-        return jsonify({'success': True, 'message': 'Login successful'}), 200
+        access_token = create_access_token(identity=email)
+        return jsonify({'success': True, 'message': 'Login successful','token':access_token}), 200
     else:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
 
