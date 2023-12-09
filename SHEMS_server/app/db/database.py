@@ -1,34 +1,40 @@
-import mysql.connector
-from mysql.connector import Error
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from config import Config
 
 class Database:
-    def __init__(self):
-        self.conn = None
+    # Creating an SQLAlchemy engine with connection pool settings
+    engine = create_engine(Config.DATABASE_URI, pool_size=10, max_overflow=20)
 
-    def connect(self):
-        try:
-            self.conn = mysql.connector.connect(
-                host='localhost',
-                database='yourdb',
-                user='youruser',
-                password='yourpassword'
-            )
-        except Error as e:
-            print(e)
+    # Using scoped_session to ensure thread safety
+    db_session = scoped_session(sessionmaker(bind=engine))
 
-    def execute_query(self, query, params=None):
-        cursor = self.conn.cursor()
-        try:
-            cursor.execute(query, params or ())
-            return cursor
-        except Error as e:
-            print(e)
-            self.conn.rollback()
+    @staticmethod
+    def execute_query(query, params=None):
+        """
+        Executes a SQL query.
 
-    def commit(self):
-        self.conn.commit()
+        :param query: SQL query string
+        :param params: Parameters for the query
+        :return: The result of the query execution
+        """
+        if params is None:
+            params = {}
+        result = Database.db_session.execute(query, params)
+        Database.db_session.commit()
+        return result
 
-    def close(self):
-        if self.conn:
-            self.conn.close()
+    @staticmethod
+    def init_db():
+        """
+        Initializes the database, such as creating tables if necessary.
+        """
+        # Place database initialization code here, if needed
+        pass
+
+    @staticmethod
+    def close_session():
+        """
+        Closes the current database session.
+        """
+        Database.db_session.remove()
