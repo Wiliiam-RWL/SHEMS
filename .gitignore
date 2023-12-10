@@ -2,3 +2,4 @@
 ./idea
 ./data_gen/price_gen/.idea
 ./SHEMS_server/.idea
+__pycache__/
