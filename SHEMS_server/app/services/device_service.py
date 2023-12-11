@@ -10,8 +10,23 @@ def get_customer_device(email):
                " WHERE customer_id = :customer_id")
     results = Database.execute_query(sql, {'customer_id': customer_id}).fetchone()
     res = []
-    print(results)
-    return results
+    if results:
+        for result in results:
+            print(res)
+            res.append({
+                "device_id": result[0],
+                "location_id": result[1],
+                "model_id": result[2],
+                "tag": result[3],
+                "model_name": result[5],
+                "model_type": result[6],
+                "location_name": result[8],
+                "location_address": result[9],
+                "location_latitude": result[10],
+                "location_longitude": result[11],
+                "location_description": result[12]
+            })
+    return res
 
 
 def add_device(location_id, model_id, tag):
