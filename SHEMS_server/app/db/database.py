@@ -44,7 +44,7 @@ class Database:
             params = {}
         result = Database.db_session.execute(query, params)
         return result
-    
+
     @staticmethod
     def handle_transaction(queries_params: list(dict)):
         """
@@ -58,7 +58,10 @@ class Database:
         try:
             transaction = Database.begin_transaction()
             for qp in queries_params:
-                Database.execute_query(qp['query'], qp['params'])
+                Database.execute_query(qp["query"], qp["params"])
+            Database.commit_transaction()
+        except:
+            Database.rollback_transaction()
 
     @staticmethod
     def init_db():
