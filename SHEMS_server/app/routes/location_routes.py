@@ -1,19 +1,12 @@
 from flask import Blueprint,request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from ..services import get_customer_location
 location_blueprint = Blueprint('location', __name__)
 
-@location_blueprint.route('/test', methods=['GET'])
+@location_blueprint.route('/all', methods=['GET'])
 @jwt_required()
 def getLocation1():
     email = get_jwt_identity()
-    print(email)
-    return jsonify({'success': True, 'message': 'Test successful'}), 200
+    locations = get_customer_location(email)
+    return jsonify(locations), 200
 
-
-
-@location_blueprint.route('/test1', methods=['GET'])
-def getLocation():
-    email = request.get_json().get('email')
-    print(email)
-    return jsonify({'success': True, 'message': 'Test successful'}), 200
