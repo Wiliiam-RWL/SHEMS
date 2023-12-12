@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..services import get_customer_device
+from ..services import get_customer_device, get_all_device_model, add_device
 
 device_blueprint = Blueprint('device', __name__)
 
@@ -13,6 +13,12 @@ def getAllDevices():
     return jsonify(locations), 200
 
 
+@device_blueprint.route('/model/all', methods=['GET'])
+@jwt_required()
+def getAllDeviceModels():
+    models = get_all_device_model()
+    return jsonify(models), 200
+
 @device_blueprint.route('/add', methods=['POST'])
 @jwt_required()
 def addNewDevice():
@@ -20,5 +26,5 @@ def addNewDevice():
     location_id = data.get('location_id')
     model_id = data.get('model_id')
     tag = data.get('tag')
-
+    add_device(location_id, model_id, tag)
     return 0, 200

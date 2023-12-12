@@ -49,8 +49,8 @@ def get_all_device_model():
         for result in results:
             res.append({
                 "model_id": result[0],
-                "model_name": result[1],
-                "model_type": result[2]
+                "model_type": result[1],
+                "model_name": result[2],
             })
     else:
         res = []
