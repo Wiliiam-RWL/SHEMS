@@ -70,12 +70,12 @@ Assumptions:
 ## 2.4 Tables Design
 ###  2.4.1 User & Location Table
 
-customer: (**customer_id**, first_name, last_name, email, billing_street_num, billing_street_name, billing_unit_number, billing_city, billing_state, billing_zipcode, cpassword)  
-location: (**location_id**, customer_id, location_street_num, location_street_name, location_unit_number, location_city, location_state, location_zipcode, square_feet, num_bedrooms, start_date, num_occupants)  
+customer: (**customer_id**, first_name, last_name, email, billing_street_num, billing_street_name, billing_unit_number, billing_city, billing_state, billing_zipcode, cpassword, in_use)  
+location: (**location_id**, customer_id, location_street_num, location_street_name, location_unit_number, location_city, location_state, location_zipcode, square_feet, num_bedrooms, start_date, num_occupants, in_use)  
 
 ###  2.4.2 Device & Event
 device_model(**model_id**, model_type, model_name), *This is for prestoring devices for user to register*  
-device_registered(**device_id**, model_id, location_id, tag), *This is for devices registered by user*  
+device_registered(**device_id**, model_id, location_id, tag, in_use), *This is for devices registered by user*  
 device_event(**device_id**, **event_label**, **event_datetime**, event_number), *event_number corresponds to event_label*  
 
 ###  2.4.3 Energy Price
@@ -90,7 +90,7 @@ CREATE TABLE customer(
     customer_id INT AUTO_INCREMENT,
     first_name VARCHAR(63) NOT NULL,
     last_name VARCHAR(63) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     billing_street_num INT NOT NULL,
     billing_street_name VARCHAR(127) NOT NULL,
     billing_unit_number VARCHAR(127) NOT NULL,
@@ -98,6 +98,7 @@ CREATE TABLE customer(
     billing_state VARCHAR(16) NOT NULL, 
     billing_zipcode VARCHAR(5) NOT NULL,
     cpassword VARCHAR(127) NOT NULL,
+    in_use BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (customer_id)
 );
 ```
@@ -116,6 +117,7 @@ CREATE TABLE location(
     num_bedrooms INT NOT NULL,
     num_occupants INT NOT NULL,
     start_date DATETIME NOT NULL,
+    in_use BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (location_id),
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
@@ -136,6 +138,7 @@ CREATE TABLE device_registered(
     model_id INT NOT NULL,
     location_id INT NOT NULL,
     tag VARCHAR(255),
+    in_use BOOLEAN DEFAULT TRUE,
     PRIMARY KEY (device_id),
     FOREIGN KEY (model_id) REFERENCES device_model(model_id) ON DELETE CASCADE,
     FOREIGN KEY (location_id) REFERENCES location(location_id) ON DELETE CASCADE
