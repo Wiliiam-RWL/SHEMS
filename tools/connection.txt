@@ -1,4 +1,0 @@
-mysql -h shems.clt5dhnemxsz.us-east-2.rds.amazonaws.com -u albv62ogbd72vcp -p
-
-user: albv62ogbd72vcp
-pwd: jdiD*JBF-83Jd!nv--73nbd0-sjkdJke24!8kls
