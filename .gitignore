@@ -3,3 +3,5 @@
 ./data_gen/price_gen/.idea
 ./SHEMS_server/.idea
 __pycache__/
+./tools/connection.txt
+./SHEMS_server/config.py
