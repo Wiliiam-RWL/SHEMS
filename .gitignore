@@ -1,8 +1,8 @@
-./data_gen/event_gen/test.txt
-./idea
-./data_gen/price_gen/.idea
-./SHEMS_server/.idea
+/data_gen/event_gen/test.txt
+/idea
+/data_gen/price_gen/.idea
+/SHEMS_server/.idea
 __pycache__/
-./tools/connection.txt
-./SHEMS_server/config.py
-./tools/connection.txt
+/tools/connection.txt
+/SHEMS_server/config.py
+/tools/connection.txt
