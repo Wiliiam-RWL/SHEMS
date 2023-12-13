@@ -3,8 +3,18 @@ from ..db.database import Database
 from sqlalchemy import text
 
 
-
-def register_user(first_name, last_name, email, password, billing_street_num, billing_street_name, billing_unit_number, billing_city, billing_state, billing_zipcode):
+def register_user(
+    first_name,
+    last_name,
+    email,
+    password,
+    billing_street_num,
+    billing_street_name,
+    billing_unit_number,
+    billing_city,
+    billing_state,
+    billing_zipcode,
+):
     """
     Registers a new customer by inserting their details into the database.
     Checks if the email already exists before proceeding.
@@ -23,14 +33,14 @@ def register_user(first_name, last_name, email, password, billing_street_num, bi
     """
     # Check if the email already exists
     sql_check = text("SELECT COUNT(*) FROM customer WHERE email = :email")
-    result = Database.execute_query(sql_check, {'email': email}).fetchone()
+    result = Database.execute_query(sql_check, {"email": email}).fetchone()
 
     if result[0] > 0:
-        return False,"Email already exists."
+        return False, "Email already exists."
 
     # Proceed with registration if email is not taken
     print(password)
-    hashed_password = generate_password_hash(password,method='pbkdf2:sha256')
+    hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
     print(hashed_password)
 
     sql_insert = text(
@@ -47,19 +57,19 @@ def register_user(first_name, last_name, email, password, billing_street_num, bi
 
     # Pass parameters as a dictionary
     params = {
-        'first_name': first_name,
-        'last_name': last_name,
-        'email': email,
-        'cpassword': hashed_password,
-        'billing_street_num': billing_street_num,
-        'billing_street_name': billing_street_name,
-        'billing_unit_number': billing_unit_number,
-        'billing_city': billing_city,
-        'billing_state': billing_state,
-        'billing_zipcode': billing_zipcode
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "cpassword": hashed_password,
+        "billing_street_num": billing_street_num,
+        "billing_street_name": billing_street_name,
+        "billing_unit_number": billing_unit_number,
+        "billing_city": billing_city,
+        "billing_state": billing_state,
+        "billing_zipcode": billing_zipcode,
     }
 
-    Database.execute_query(sql_insert, params)
+    Database.handle_transaction([{"query": sql_insert, "params": params}])
     return True, "Customer registered successfully."
 
 
@@ -72,14 +82,14 @@ def check_user_credentials(email, password):
     :return: True if credentials are valid, False otherwise
     """
     sql = text("SELECT cpassword FROM customer WHERE email = :email")
-    result = Database.execute_query(sql, {'email': email}).fetchone()
+    result = Database.execute_query(sql, {"email": email}).fetchone()
     print(result)
     print(password)
     if result:
         hashed_password = result[0]
         print("Hashed password from DB:", hashed_password)  # 调试打印
         print("Plain text password:", password)  # 调试打印
-        print("HASH password",generate_password_hash(password, method='pbkdf2:sha256'))
+        print("HASH password", generate_password_hash(password, method="pbkdf2:sha256"))
         password_check = check_password_hash(hashed_password, password)
         print("Password check result:", password_check)  # 调试打印
         return password_check
