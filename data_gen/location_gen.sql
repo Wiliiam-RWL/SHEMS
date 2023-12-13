@@ -9,7 +9,8 @@ INSERT INTO
         location_zipcode,
         square_feet,
         num_bedrooms,
-        num_occupants
+        num_occupants,
+        start_date
     )
 VALUES
     (
@@ -102,4 +103,17 @@ VALUES
         1,
         1,
         '2022-07-31 23:59:59'
-    );
+    ),
+    (
+        16,
+        465,
+        'Marin Blvd',
+        '2606',
+        'Jersey City',
+        'NJ',
+        '07310',
+        789.0,
+        2,
+        2,
+        '2022-07-31 23:59:59'
+    )

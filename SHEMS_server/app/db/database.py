@@ -46,7 +46,7 @@ class Database:
         return result
 
     @staticmethod
-    def handle_transaction(queries_params: list(dict)):
+    def handle_transaction(queries_params):
         """
         Execute a series of queries as transaction
 
@@ -60,8 +60,10 @@ class Database:
             for qp in queries_params:
                 Database.execute_query(qp["query"], qp["params"])
             Database.commit_transaction()
+            return True
         except:
             Database.rollback_transaction()
+            return False
 
     @staticmethod
     def init_db():
