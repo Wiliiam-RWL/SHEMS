@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from config import Config
 
-
 class Database:
     # Creating an SQLAlchemy engine with connection pool settings
     engine = create_engine(Config.DATABASE_URI, pool_size=10, max_overflow=20)
@@ -61,7 +60,8 @@ class Database:
                 Database.execute_query(qp["query"], qp["params"])
             Database.commit_transaction()
             return True
-        except:
+        except Exception as e:
+            print(e)
             Database.rollback_transaction()
             return False
 

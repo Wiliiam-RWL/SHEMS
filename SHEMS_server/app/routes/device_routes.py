@@ -26,5 +26,8 @@ def addNewDevice():
     location_id = data.get('location_id')
     model_id = data.get('model_id')
     tag = data.get('tag')
-    add_device(location_id, model_id, tag)
-    return 0, 200
+    success = add_device(location_id, model_id, tag)
+    if success:
+        return jsonify({"success": success}), 201
+    else:
+        return jsonify({"success": success}), 400
