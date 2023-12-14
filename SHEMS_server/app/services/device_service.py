@@ -14,38 +14,43 @@ def get_customer_device(email):
         "JOIN location l ON dr.location_id = l.location_id "
         "WHERE customer_id = :customer_id"
     )
-    results = Database.execute_query(sql, {'customer_id': customer_id}).fetchall()
+    results = Database.execute_query(sql, {"customer_id": customer_id}).fetchall()
     res = []
     if results:
         print(results)
         for result in results:
-            res.append({
-                "device_id": result[0],
-                "location_id": result[1],
-                "model_id": result[2],
-                "tag": result[3],
-                "model_name": result[4],
-                "model_type": result[5],
-                "location_street_num": result[6],
-                "location_state": result[7],
-                "location_street_name": result[8],
-                "location_unit_number": result[9],
-                "location_city": result[10],
-                "location_zipcode": result[11],
-            })
+            res.append(
+                {
+                    "device_id": result[0],
+                    "location_id": result[1],
+                    "model_id": result[2],
+                    "tag": result[3],
+                    "model_name": result[4],
+                    "model_type": result[5],
+                    "location_street_num": result[6],
+                    "location_state": result[7],
+                    "location_street_name": result[8],
+                    "location_unit_number": result[9],
+                    "location_city": result[10],
+                    "location_zipcode": result[11],
+                }
+            )
     return res
 
 
 def add_device(location_id, model_id, tag):
-    sql_string = "INSERT INTO device_registered (location_id, model_id, tag) VALUES (%s, %s, '%s')"
-    sql = text(sql_string % (location_id, model_id, tag))
-    success = Database.handle_transaction([{"query": sql, "params": None}])
+    sql_string = "INSERT INTO device_registered (location_id, model_id, tag) VALUES (:location_id, :model_id, :tag)"
+    sql = text(sql_string)
+    params = {"location_id": location_id, "model_id": model_id, "tag": tag}
+    success = Database.handle_transaction([{"query": sql, "params": params}])
     return success
 
 
 def delete_device(device_id):
-    sql = text("DELETE FROM device_registered WHERE device_id = :device_id")
-    Database.execute_query(sql, {'device_id': device_id})
+    sql = text(
+        "UPDATE device_registered SET in_use = false WHERE device_id = :device_id"
+    )
+    Database.execute_query(sql, {"device_id": device_id})
     return True
 
 
@@ -55,11 +60,13 @@ def get_all_device_model():
     res = []
     if results:
         for result in results:
-            res.append({
-                "model_id": result[0],
-                "model_type": result[1],
-                "model_name": result[2],
-            })
+            res.append(
+                {
+                    "model_id": result[0],
+                    "model_type": result[1],
+                    "model_name": result[2],
+                }
+            )
     else:
         res = []
     return res
