@@ -6,3 +6,10 @@ __pycache__/
 /tools/connection.txt
 /SHEMS_server/config.py
 /tools/connection.txt
+
+*/.idea/
+*/venv/
+venv/
+.idea/
+*/__pycache__/
+

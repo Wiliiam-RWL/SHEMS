@@ -8,7 +8,6 @@ def get_customer_location(email):
     sql = text("SELECT * FROM location WHERE customer_id = :customer_id")
     results = Database.execute_query(sql, {"customer_id": customer_id}).fetchall()
     # Mapping result to a array with column names as keys
-    print(results)
     res = []
     if results:
         for result in results:
