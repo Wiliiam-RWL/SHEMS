@@ -1,3 +1,4 @@
+import os
 import mysql.connector
 import datetime
 import json
@@ -7,11 +8,15 @@ EVENT_TYPE = []
 
 
 def get_conn():
+    fp = open("../../tools/connection.txt")
+    user = fp.readline().replace("\n", "")
+    pwd = fp.readline().replace("\n", "")
+    print(user, pwd)
     try:
         conn = mysql.connector.connect(
-            host="db-project.clt5dhnemxsz.us-east-2.rds.amazonaws.com",  # No 'https://' prefix
-            user="admin",
-            password="12345678",
+            host="shems.clt5dhnemxsz.us-east-2.rds.amazonaws.com",  # No 'https://' prefix
+            user=user,
+            password=pwd,
             database="shems",
             port=3306,  # or your custom port
         )
@@ -32,7 +37,7 @@ def close_conn(conn):
 def get_light_bulb(conn):
     cursor = conn.cursor()
     cursor.execute(
-        'SELECT device_id FROM device_model NATURAL JOIN device_registered WHERE model_type = "Light Bulb"'
+        "SELECT device_id FROM device_model NATURAL JOIN device_registered WHERE device_id = 12 OR device_id = 14"
     )
     light_bulb_ids = cursor.fetchall()
     lb_list = []
@@ -124,7 +129,7 @@ if __name__ == "__main__":
     )
     now = start_datetime
     end_datetime = datetime.datetime(
-        year=2022, month=9, day=30, hour=23, minute=59, second=59
+        year=2022, month=12, day=31, hour=23, minute=59, second=59
     )
 
     bulbs = []
@@ -139,7 +144,7 @@ if __name__ == "__main__":
         bulbs.append(bulb)
 
     while now < end_datetime:
-        now = now + datetime.timedelta(minutes=1)
+        now = now + datetime.timedelta(minutes=5)
         for b in bulbs:
             event_list = b.send_event(now)
             for e in event_list:
