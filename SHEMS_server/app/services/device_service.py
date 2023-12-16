@@ -56,6 +56,14 @@ def delete_device(device_id):
     return success
 
 
+def update_device(device_id, tag):
+    sql_string = "UPDATE device_registered SET tag = :tag WHERE device_id = :device_id"
+    sql = text(sql_string)
+    params = {"tag": tag, "device_id": device_id}
+    success = Database.handle_transaction([{"query": sql, "params": params}])
+    return success
+
+
 def get_all_device_model():
     sql = text("SELECT * FROM device_model")
     results = Database.execute_query(sql).fetchall()

@@ -6,4 +6,4 @@ from .location_service import (
     modify_location,
     delete_location,
 )
-from .device_service import get_customer_device, get_all_device_model, add_device, delete_device
+from .device_service import get_customer_device, get_all_device_model, add_device, delete_device, update_device
