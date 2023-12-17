@@ -4,6 +4,8 @@ from ..services import (
     get_energy_by_customer_per_day,
     get_energy_by_customer_per_month,
     get_customer_id,
+get_energy_by_device_type,
+get_energy_by_location_id
 )
 from datetime import datetime
 
@@ -35,3 +37,38 @@ def getEnergyPerDay():
         return jsonify(per_day), 200
     else:
         return jsonify(None, 400)
+
+
+@energy_blueprint.route("/device/type", methods=["GET"])
+@jwt_required()
+def getEnergyByDeviceType():
+    email = get_jwt_identity()
+    customer_id = get_customer_id(email=email)
+
+    # Retrieve 'start' and 'end' from the query parameters
+    start = request.args.get("start")
+    end = request.args.get("end")
+
+    res = get_energy_by_device_type(customer_id, start, end)
+    if res is not None:
+        return jsonify(res), 200
+    else:
+        return jsonify(None, 400)
+
+
+@energy_blueprint.route("/location", methods=["GET"])
+@jwt_required()
+def getEnergyByLocation():
+    email = get_jwt_identity()
+    customer_id = get_customer_id(email=email)
+
+    # Retrieve 'start' and 'end' from the query parameters
+    start = request.args.get("start")
+    end = request.args.get("end")
+
+    res = get_energy_by_location_id(customer_id, start, end)
+    if res is not None:
+        return jsonify(res), 200
+    else:
+        return jsonify(None, 400)
+

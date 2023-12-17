@@ -63,3 +63,86 @@ def get_energy_by_customer_per_month(customer_id: int, start: datetime, end: dat
         return energy
     else:
         return None
+
+
+def get_energy_by_device_type(customer_id: int, start: datetime, end: datetime):
+    sql_string = """
+    SELECT
+    dm.model_type,
+    AVG(total_energy_consumption) AS average_energy_consumption
+FROM
+    (
+        SELECT
+            device_id,
+            SUM(event_number) AS total_energy_consumption
+        FROM
+            device_event
+        WHERE
+            event_label = 'EnergyReport'
+            AND event_datetime >= :start
+            AND event_datetime < :end
+        GROUP BY
+            device_id
+        HAVING
+            SUM(event_number) IS NOT NULL # only consider devices that have on at least once
+    ) AS subquery
+    JOIN device_registered dr ON subquery.device_id = dr.device_id
+    JOIN device_model dm ON dr.model_id = dm.model_id
+    JOIN location l ON dr.location_id = l.location_id
+    WHERE l.customer_id = :customer_id
+GROUP BY
+    dm.model_type;
+    """
+    params = {"customer_id": customer_id, "start": start, "end": end}
+
+    results = Database.execute_query(text(sql_string), params=params).fetchall()
+
+    # convert results to a list of dictionaries
+    energy = []
+    if results:
+        for res in results:
+            energy.append({"device_type": res[0], "energy": res[1]})
+        return energy
+
+
+def get_energy_by_location_id(customer_id: int, start: datetime, end: datetime):
+    sql_string = """
+    SELECT
+    l.location_id,
+    AVG(total_energy_consumption) AS average_energy_consumption,
+    CONCAT(l.location_unit_number,' ',l.location_street_num, ' ', l.location_street_name) AS address
+FROM
+    (
+        SELECT
+            device_id,
+            SUM(event_number) AS total_energy_consumption
+        FROM
+            device_event
+        WHERE
+            event_label = 'EnergyReport'
+            AND event_datetime >= :start
+            AND event_datetime < :end
+        GROUP BY
+            device_id
+        HAVING
+            SUM(event_number) IS NOT NULL # only consider devices that have on at least once
+    ) AS subquery
+    JOIN device_registered dr ON subquery.device_id = dr.device_id
+    JOIN device_model dm ON dr.model_id = dm.model_id
+    JOIN location l ON dr.location_id = l.location_id
+    WHERE l.customer_id = :customer_id
+    GROUP BY l.location_id
+    """
+    params = {"customer_id": customer_id, "start": start, "end": end}
+
+    results = Database.execute_query(text(sql_string), params=params).fetchall()
+
+    # convert results to a list of dictionaries
+    energy = []
+    print(results)
+    if results:
+        for res in results:
+            energy.append({"location_id": res[0], "energy": res[1], "address": res[2]})
+        return energy
+    else:
+        return None
