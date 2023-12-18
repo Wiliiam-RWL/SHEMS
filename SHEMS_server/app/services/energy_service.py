@@ -40,6 +40,53 @@ def get_energy_by_customer_per_day(customer_id: int, start: datetime, end: datet
         return None
 
 
+def get_customer_energy_per_locatoin(customer_id: int, start: datetime, end: datetime):
+    sql_string = """
+    SELECT 
+        ALL_L.location_id,
+        DS.date, 
+        COALESCE(SUM(DE.event_number), 0) as total_energy
+    FROM (
+        SELECT ADDDATE(:start, t4.i*1000 + t3.i*100 + t2.i*10 + t1.i) date
+        FROM 
+            (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t1,
+            (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t2,
+            (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t3,
+            (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t4
+        WHERE ADDDATE(:start, t4.i*1000 + t3.i*100 + t2.i*10 + t1.i) BETWEEN :start AND :end
+    ) DS
+    JOIN (
+        SELECT L.location_id as location_id
+        FROM
+            location L JOIN customer CC ON L.customer_id = CC.customer_id
+        WHERE
+            CC.customer_id = :customer_id
+    ) ALL_L
+    LEFT JOIN device_registered DR ON DR.location_id = ALL_L.location_id
+    LEFT JOIN device_event DE ON DATE(DE.event_datetime) = DS.date AND DE.device_id = DR.device_id
+    GROUP BY ALL_L.location_id, DS.date
+    ORDER BY ALL_L.location_id, DS.date ASC
+    """
+    params = {"customer_id": customer_id, "start": start, "end": end}
+
+    results = Database.execute_query(text(sql_string), params=params).fetchall()
+
+    energy = []
+    last_location = -1
+    idx = -1
+
+    if results:
+        for res in results:
+            if not res[0] == last_location:
+                idx += 1
+                energy.append({"location_id": res[0], "energy": []})
+                last_location = res[0]
+            energy[idx]["energy"].append({"date": res[1], "energy": res[2]})
+        return energy
+    else:
+        return None
+
+
 def get_energy_by_customer_per_month(customer_id: int, start: datetime, end: datetime):
     sql_string = "SELECT YEAR(DE.event_datetime) AS year, MONTH(DE.event_datetime) AS month, SUM(event_number) as total_energy FROM "
     sql_string += (

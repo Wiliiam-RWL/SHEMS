@@ -11,5 +11,6 @@ from .energy_service import (
     get_energy_by_customer_per_day,
     get_energy_by_customer_per_month,
     get_energy_by_device_type,
-    get_energy_by_location_id
+    get_energy_by_location_id,
+    get_customer_energy_per_locatoin,
 )
