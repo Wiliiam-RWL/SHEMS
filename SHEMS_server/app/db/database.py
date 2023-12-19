@@ -79,3 +79,5 @@ class Database:
         Closes the current database session.
         """
         Database.db_session.remove()
+
+    
