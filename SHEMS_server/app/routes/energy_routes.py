@@ -7,7 +7,8 @@ from ..services import (
     get_energy_by_device_type,
     get_energy_by_location_id,
     get_customer_energy_per_locatoin,
-    get_energy_of_all_devices
+    get_energy_of_all_devices,
+    get_energy_of_all_device_per_day
 )
 from datetime import datetime
 
@@ -104,5 +105,24 @@ def getEnergyOfAllDevices():
     res = get_energy_of_all_devices(customer_id, start, end)
     if res is not None:
         return jsonify(res), 200
+    else:
+        return jsonify(None, 400)
+
+
+
+@energy_blueprint.route("/device/day", methods=["GET"])
+@jwt_required()
+def getEnergyPerDayByDeviceID():
+    email = get_jwt_identity()
+    customer_id = get_customer_id(email=email)
+
+    # Retrieve 'start' and 'end' from the query parameters
+    start = request.args.get("start")
+    end = request.args.get("end")
+    device_id = request.args.get("device_id")
+
+    per_day = get_energy_of_all_device_per_day(customer_id, device_id,start, end)
+    if per_day is not None:
+        return jsonify(per_day), 200
     else:
         return jsonify(None, 400)

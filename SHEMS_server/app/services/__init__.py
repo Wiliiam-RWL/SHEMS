@@ -13,5 +13,10 @@ from .energy_service import (
     get_energy_by_device_type,
     get_energy_by_location_id,
     get_customer_energy_per_locatoin,
-    get_energy_of_all_devices
+    get_energy_of_all_devices,
+    get_energy_of_all_device_per_day
+)
+from .price_service import (
+    get_price_of_locations,
+get_price_of_each_device_type
 )
