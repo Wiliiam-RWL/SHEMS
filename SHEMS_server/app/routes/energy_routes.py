@@ -20,7 +20,7 @@ energy_blueprint = Blueprint("energy", __name__)
 def test():
     customer_id = 2
     start = datetime.strptime("2022-08-01 00:00:00", "%Y-%m-%d %H:%M:%S")
-    end = datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S")
+    end = datetime.strptime("2022-12-31 23:59:59", "%Y-%m-%d %H:%M:%S")
     per_location_day = get_customer_energy_per_locatoin(customer_id, start, end)
     return jsonify(per_location_day), 200
 
@@ -34,8 +34,11 @@ def getEnergyPerLocationPerDay():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     per_location_per_day = get_customer_energy_per_locatoin(customer_id, start, end)
+    print(per_location_per_day)
     if per_location_per_day is not None:
         return jsonify(per_location_per_day), 200
     else:
@@ -51,6 +54,8 @@ def getEnergyPerDay():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     per_day = get_energy_by_customer_per_day(customer_id, start, end)
     if per_day is not None:
@@ -68,6 +73,8 @@ def getEnergyByDeviceType():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     res = get_energy_by_device_type(customer_id, start, end)
     if res is not None:
@@ -83,6 +90,8 @@ def getEnergyByLocationDeviceType():
     location_id = request.args.get("location_id")
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     res = get_energy_by_location_device_type(location_id, start, end)
     if res is not None:
@@ -100,6 +109,8 @@ def getEnergyByLocation():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     res = get_energy_by_location_id(customer_id, start, end)
     if res is not None:
@@ -117,6 +128,8 @@ def getEnergyOfAllDevices():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     res = get_energy_of_all_devices(customer_id, start, end)
     if res is not None:
@@ -134,6 +147,8 @@ def getEnergyPerDayByDeviceID():
     # Retrieve 'start' and 'end' from the query parameters
     start = request.args.get("start")
     end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
     device_id = request.args.get("device_id")
 
     per_day = get_energy_of_all_device_per_day(customer_id, device_id, start, end)
