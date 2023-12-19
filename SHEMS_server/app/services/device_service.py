@@ -8,7 +8,7 @@ def get_customer_device(email):
     sql = text(
         "SELECT dr.device_id, dr.location_id, dr.model_id, dr.tag, dm.model_name, dm.model_type, "
         "l.location_street_num, l.location_state, l.location_street_name, l.location_unit_number, "
-        "l.location_city, l.location_zipcode "
+        "l.location_city, l.location_zipcode, dr.in_use "
         "FROM device_registered dr "
         "JOIN device_model dm ON dr.model_id = dm.model_id "
         "JOIN location l ON dr.location_id = l.location_id "
@@ -33,6 +33,7 @@ def get_customer_device(email):
                     "location_unit_number": result[9],
                     "location_city": result[10],
                     "location_zipcode": result[11],
+                    "in_use": result[12]
                 }
             )
     return res
@@ -50,8 +51,17 @@ def delete_device(device_id):
     sql = text(
         "UPDATE device_registered SET in_use = false WHERE device_id = :device_id"
     )
-    Database.execute_query(sql, {"device_id": device_id})
-    return True
+    params = {"device_id": device_id}
+    success = Database.handle_transaction([{"query": sql, "params": params}])
+    return success
+
+
+def update_device(device_id, tag):
+    sql_string = "UPDATE device_registered SET tag = :tag WHERE device_id = :device_id"
+    sql = text(sql_string)
+    params = {"tag": tag, "device_id": device_id}
+    success = Database.handle_transaction([{"query": sql, "params": params}])
+    return success
 
 
 def get_all_device_model():

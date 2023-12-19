@@ -6,7 +6,7 @@ from .location_service import (
     modify_location,
     delete_location,
 )
-from .device_service import get_customer_device, get_all_device_model, add_device
+from .device_service import get_customer_device, get_all_device_model, add_device, delete_device, update_device
 from .energy_service import (
     get_energy_by_customer_per_day,
     get_energy_by_customer_per_month,
