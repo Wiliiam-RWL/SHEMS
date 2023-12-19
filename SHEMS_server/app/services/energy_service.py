@@ -7,7 +7,7 @@ def get_energy_by_customer_per_day(customer_id: int, start: datetime, end: datet
     sql_string = """
     SELECT 
         DS.date, 
-        COALESCE(SUM(DE.event_number), 0) as total_energy
+        COALESCE(ROUND(SUM(DE.event_number),3), 0) as total_energy
     FROM (
         SELECT ADDDATE(:start, t4.i*1000 + t3.i*100 + t2.i*10 + t1.i) date
         FROM 
@@ -45,7 +45,7 @@ def get_customer_energy_per_locatoin(customer_id: int, start: datetime, end: dat
     SELECT 
         ALL_L.location_id,
         DS.date, 
-        COALESCE(SUM(DE.event_number), 0) as total_energy
+        COALESCE(ROUND(SUM(DE.event_number),4), 0) as total_energy
     FROM (
         SELECT ADDDATE(:start, t4.i*1000 + t3.i*100 + t2.i*10 + t1.i) date
         FROM 
@@ -88,7 +88,7 @@ def get_customer_energy_per_locatoin(customer_id: int, start: datetime, end: dat
 
 
 def get_energy_by_customer_per_month(customer_id: int, start: datetime, end: datetime):
-    sql_string = "SELECT YEAR(DE.event_datetime) AS year, MONTH(DE.event_datetime) AS month, SUM(event_number) as total_energy FROM "
+    sql_string = "SELECT YEAR(DE.event_datetime) AS year, MONTH(DE.event_datetime) AS month, ROUND(SUM(event_number),3) as total_energy FROM "
     sql_string += (
         "device_event DE JOIN device_registered DR ON DE.device_id = DR.device_id"
     )
@@ -135,6 +135,35 @@ GROUP BY
         for res in results:
             energy.append({"device_type": res[0], "energy": res[1]})
         return energy
+
+
+def get_energy_by_location_device_type(
+    location_id: int, start: datetime, end: datetime
+):
+    sql_string = """
+    SELECT
+    dm.model_type,
+    ROUND(SUM(event_number),4) AS average_energy_consumption
+    FROM device_event de
+    JOIN device_registered dr ON de.device_id = dr.device_id
+    JOIN device_model dm ON dr.model_id = dm.model_id
+    JOIN location l ON dr.location_id = l.location_id
+    WHERE l.location_id = :location_id AND de.event_datetime BETWEEN :start AND :end AND de.event_label = 'EnergyReport'
+GROUP BY
+    dm.model_type;
+    """
+    params = {"location_id": location_id, "start": start, "end": end}
+
+    results = Database.execute_query(text(sql_string), params=params).fetchall()
+
+    # convert results to a list of dictionaries
+    energy = []
+    if results:
+        for res in results:
+            energy.append({"device_type": res[0], "energy": res[1]})
+        return energy
+    else:
+        return [{"device_type": "No Energy Usage", "energy": 0}]
 
 
 def get_energy_by_location_id(customer_id: int, start: datetime, end: datetime):
@@ -204,16 +233,16 @@ def get_energy_of_all_devices(customer_id, start, end):
                 "model_name": result[1],
                 "model_type": result[2],
                 "address": result[3],
-                "average_energy_consumption": result[4]
+                "average_energy_consumption": result[4],
             }
         )
 
     return energy
 
 
-
-
-def get_energy_of_all_device_per_day(customer_id: int,device_id:int, start: datetime, end: datetime):
+def get_energy_of_all_device_per_day(
+    customer_id: int, device_id: int, start: datetime, end: datetime
+):
     sql_string = """
     SELECT 
         DS.date, 
@@ -238,7 +267,12 @@ def get_energy_of_all_device_per_day(customer_id: int,device_id:int, start: date
     ORDER BY DS.date ASC
     """
 
-    params = {"customer_id": customer_id, 'device_id': device_id, "start": start, "end": end}
+    params = {
+        "customer_id": customer_id,
+        "device_id": device_id,
+        "start": start,
+        "end": end,
+    }
 
     results = Database.execute_query(text(sql_string), params=params).fetchall()
 

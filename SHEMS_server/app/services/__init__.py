@@ -6,7 +6,13 @@ from .location_service import (
     modify_location,
     delete_location,
 )
-from .device_service import get_customer_device, get_all_device_model, add_device, delete_device, update_device
+from .device_service import (
+    get_customer_device,
+    get_all_device_model,
+    add_device,
+    delete_device,
+    update_device,
+)
 from .energy_service import (
     get_energy_by_customer_per_day,
     get_energy_by_customer_per_month,
@@ -14,9 +20,7 @@ from .energy_service import (
     get_energy_by_location_id,
     get_customer_energy_per_locatoin,
     get_energy_of_all_devices,
-    get_energy_of_all_device_per_day
+    get_energy_of_all_device_per_day,
+    get_energy_by_location_device_type,
 )
-from .price_service import (
-    get_price_of_locations,
-get_price_of_each_device_type
-)
+from .price_service import get_price_of_locations, get_price_of_each_device_type

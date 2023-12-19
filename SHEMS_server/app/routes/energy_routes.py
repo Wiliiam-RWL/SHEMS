@@ -8,7 +8,8 @@ from ..services import (
     get_energy_by_location_id,
     get_customer_energy_per_locatoin,
     get_energy_of_all_devices,
-    get_energy_of_all_device_per_day
+    get_energy_of_all_device_per_day,
+    get_energy_by_location_device_type,
 )
 from datetime import datetime
 
@@ -75,6 +76,21 @@ def getEnergyByDeviceType():
         return jsonify(None, 400)
 
 
+@energy_blueprint.route("/location/device_type", methods=["GET"])
+@jwt_required()
+def getEnergyByLocationDeviceType():
+    # Retrieve 'start' and 'end' from the query parameters
+    location_id = request.args.get("location_id")
+    start = request.args.get("start")
+    end = request.args.get("end")
+
+    res = get_energy_by_location_device_type(location_id, start, end)
+    if res is not None:
+        return jsonify(res), 200
+    else:
+        return jsonify(None, 400)
+
+
 @energy_blueprint.route("/location/pie", methods=["GET"])
 @jwt_required()
 def getEnergyByLocation():
@@ -109,7 +125,6 @@ def getEnergyOfAllDevices():
         return jsonify(None, 400)
 
 
-
 @energy_blueprint.route("/device/day", methods=["GET"])
 @jwt_required()
 def getEnergyPerDayByDeviceID():
@@ -121,7 +136,7 @@ def getEnergyPerDayByDeviceID():
     end = request.args.get("end")
     device_id = request.args.get("device_id")
 
-    per_day = get_energy_of_all_device_per_day(customer_id, device_id,start, end)
+    per_day = get_energy_of_all_device_per_day(customer_id, device_id, start, end)
     if per_day is not None:
         return jsonify(per_day), 200
     else:
