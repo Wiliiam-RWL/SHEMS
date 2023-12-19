@@ -212,8 +212,8 @@ FROM
             device_event
         WHERE
             event_label = 'EnergyReport'
-            AND event_datetime >= '2022-08-01'
-            AND event_datetime < '2022-09-01'
+            AND event_datetime >= '2021-08-01'
+            AND event_datetime < '2023-09-01'
         GROUP BY
             device_id
         HAVING
@@ -221,6 +221,8 @@ FROM
     ) AS subquery
     JOIN device_registered dr ON subquery.device_id = dr.device_id
     JOIN device_model dm ON dr.model_id = dm.model_id
+    JOIN location l ON dr.location_id = l.location_id
+    WHERE l.customer_id = 2
 GROUP BY
     dm.model_type;
 ```
@@ -348,7 +350,7 @@ FROM
     JOIN AvgCosts a ON e.location_id = a.location_id;
 ```
 ![sql5](pic/sql5.png)
-   
+
 
 6. Identify service location(s) that had the highest percentage increase in energy consumption between August and September of 2022.
 
