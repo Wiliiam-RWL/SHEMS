@@ -80,7 +80,7 @@ def getEnergyByDeviceType():
     if res is not None:
         return jsonify(res), 200
     else:
-        return jsonify(None, 400)
+        return jsonify([]), 200
 
 
 @energy_blueprint.route("/location/device_type", methods=["GET"])
@@ -97,7 +97,7 @@ def getEnergyByLocationDeviceType():
     if res is not None:
         return jsonify(res), 200
     else:
-        return jsonify(None, 400)
+        return jsonify([]), 200
 
 
 @energy_blueprint.route("/location/pie", methods=["GET"])
@@ -116,7 +116,7 @@ def getEnergyByLocation():
     if res is not None:
         return jsonify(res), 200
     else:
-        return jsonify(None, 400)
+        return jsonify([]), 200
 
 
 @energy_blueprint.route("/device/all", methods=["GET"])
@@ -135,7 +135,7 @@ def getEnergyOfAllDevices():
     if res is not None:
         return jsonify(res), 200
     else:
-        return jsonify(None, 400)
+        return jsonify([]), 200
 
 
 @energy_blueprint.route("/device/day", methods=["GET"])
@@ -155,4 +155,4 @@ def getEnergyPerDayByDeviceID():
     if per_day is not None:
         return jsonify(per_day), 200
     else:
-        return jsonify(None, 400)
+        return jsonify([]), 200

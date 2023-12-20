@@ -23,7 +23,7 @@ def get_price_of_locations(customer_id, start, end):
             energy.append({"location_id": res[0], "address": res[2], "cost": res[1]})
         return energy
     else:
-        return None
+        return [{"address": "No Location Data", "price": 0, "location_id":0}]
 
 
 def get_price_of_each_device_type(customer_id, start, end):
@@ -47,7 +47,7 @@ def get_price_of_each_device_type(customer_id, start, end):
             energy.append({"model_type": res[0], "price": res[1]})
         return energy
     else:
-        return None
+        return [{"model_type": "No Device Data", "price": 0}]
 
 
 def get_price_by_customer_per_month(customer_id: int, start: datetime, end: datetime):

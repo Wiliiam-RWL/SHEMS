@@ -135,6 +135,8 @@ GROUP BY
         for res in results:
             energy.append({"device_type": res[0], "energy": res[1]})
         return energy
+    else:
+        return [{"device_type":"No Energy Usage", "energy":0}]
 
 
 def get_energy_by_location_device_type(
@@ -187,7 +189,7 @@ def get_energy_by_location_id(customer_id: int, start: datetime, end: datetime):
             energy.append({"location_id": res[0], "energy": res[1], "address": res[2]})
         return energy
     else:
-        return None
+        return [{"address":"No Energy Usage", "energy":0, "location_id":0}]
 
 
 def get_energy_of_all_devices(customer_id, start, end):
