@@ -300,3 +300,116 @@ classDiagram
     Device_Energy_Info --> Device_Page: component of
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;There would be three components/pages of energy information, corresponding to the field of account, device, location. Account information page would show the overview of all the energy usage of all locations registered by the customer. It should also provide date range selector, display mode, etc. to facilitate various choices of view for the energy/fee consumption. Location energy page is designed similarly, adding an extra barchart comparing the energy information between current location and other locations with a close number of square feet. It also should provide vairous selection of displayed view. Device Event and Energy are set to be components of the device information page. Triggered by the buttons of the entry in device table, they would show the energy consumption on daily/monthly basis, and the event(Turned on/off, door opened/closed, etc.) genreated by the device.
+
+
+
+
+
+# Backend
+
+## Tech Stack
+
+For our project, we've chosen a combination of Python, Flask, and MySQL, hosted on AWS. This stack provides a robust and scalable foundation for our backend services.
+
+## Database Access 
+
+To ensure data integrity and concurrency, we implement transactions for executing SQL commands. This approach maintains data consistency, particularly when handling multiple simultaneous requests to modify the database.
+
+Here’s an example of our transaction handling in Python:
+
+```python
+@staticmethod
+    def handle_transaction(queries_params):
+        """
+        Execute a series of queries as transaction
+
+        If successful, commit
+        If failed, rollback
+
+        :param queries_params: {'query': the query to be execute, 'params': the parameters}
+        """
+        try:
+            transaction = Database.begin_transaction()
+            for qp in queries_params:
+                Database.execute_query(qp["query"], qp["params"])
+            Database.commit_transaction()
+            return True
+        except Exception as e:
+            print(e)
+            Database.rollback_transaction()
+            return False
+```
+
+After executing SQL commands, we close the session. This practice helps to manage the connection pool effectively.
+
+```mysql
+@app.teardown_appcontext
+    def shutdown_session(exception=None):
+        database.Database.close_session()
+```
+
+## Backend Structure
+
+Our backend is organized around service modules, each corresponding to a specific database table API and its functionalities. We have developed six key services:
+
+1. **Auth Service:** Manages user authentication and registration.
+2. **Customer Service:** Handles CRUD operations for basic customer information.
+3. **Device Service:** Manages CRUD operations for device information.
+4. **Energy Service:** Calculates energy usage for varying time periods, locations, device types, etc.
+5. **Price Service:** Computes energy costs, similar to the Energy Service.
+6. **Location Service:** Facilitates CRUD operations for location data.
+
+In these services, we employ the `Database` method for SQL access and use `handle_transaction` for all APIs to ensure concurrency.
+
+Each service has corresponding routes which preprocess parameters, call various service methods, and return responses to the client.
+
+## Cross-Sight Protection
+
+we use `flask_cors` in our backend server, by writing code like below, we are able to only allow request that from our listed origin can visit our server:
+
+```python
+origins = [
+    "http://localhost:3000",  # Localhost origin
+    "http://localhost:3001",  # Localhost origin
+]
+CORS(app, resources={r"/*": {"origins": origins}})
+```
+
+## SQL Injection Prevention
+
+Our approach to preventing SQL injection is centered around avoiding the direct concatenation of user inputs into SQL queries. Instead, we employ a method that uses placeholders and parameters, which significantly enhances security. This strategy not only prevents SQL injection attacks but also helps in filtering out potentially harmful characters like backticks (`), double quotes ("), and semicolons (;).
+
+Here's an example that demonstrates our methodology:
+
+```python
+def add_device(location_id, model_id, tag):
+    sql_string = "INSERT INTO device_registered (location_id, model_id, tag) VALUES (:location_id, :model_id, :tag)"
+    sql = text(sql_string)
+    params = {"location_id": location_id, "model_id": model_id, "tag": tag}
+    success = Database.handle_transaction([{"query": sql, "params": params}])
+    return success
+```
+
+In this example, we demonstrate how a new device is added to a specific location. By using this method, we effectively mitigate the risk of SQL injection, ensuring that our database interactions are not only secure but also robust against malicious inputs.
+
+## Password
+
+We store passwords as MD5 hash encrypted values in our database for enhanced security.
+
+## Using JWT for Authentication
+
+Our API employs JSON Web Tokens (JWTs) to ensure secure user authentication. The process is straightforward: the frontend includes the token information in the request header. On the backend, we utilize the `@jwt_required()` decorator in Python to authenticate user credentials. Here’s an illustrative example:
+
+```python
+@energy_blueprint.route("/device/day", methods=["GET"])
+@jwt_required()
+def getEnergyPerDayByDeviceID():
+    email = get_jwt_identity()
+    customer_id = get_customer_id(email=email)
+```
+
+In scenarios where the frontend sends an expired token or fails to include a token, the system automatically returns a 403 (Forbidden) or 401 (Unauthorized) response. This prompts users to re-login, ensuring that the backend always operates with valid tokens. Once we receive a valid token, we use `get_jwt_identity()` to identify the requesting user, which is crucial for processing subsequent service API requests. This mechanism not only secures our API but also streamlines the user validation process, making our backend more robust and user-friendly.
+
+## Database
+
+We utilize MySQL and AWS RDS for a cloud-based database solution, offering easy integration and enhanced security through AWS security settings.
