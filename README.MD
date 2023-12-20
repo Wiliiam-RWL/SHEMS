@@ -8,11 +8,7 @@ This part includes need analysis, schema design, simulative data generation, and
 
 ### 1. Clone And Run Frontend
 
-First RUN 
-
-[Client]: https://github.com/yangfan2001/shemsapp
-
- using node.js in localhost
+First RUN [SHEMS Client](https://github.com/yangfan2001/shemsapp ) in Localhost using node.js in localhost
 
 And then Clone This Repo
 
