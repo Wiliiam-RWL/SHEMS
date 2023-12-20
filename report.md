@@ -200,6 +200,8 @@ classDiagram
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;Account page should display the basic information of the customer: account information(name, email, billing address, etc.), list of locations(short address for each location), list of devices(device model and type for each device). This page will also provide the buttons navigating to other pages as well.  
 
+<img src="pic/accountPage.png" alt="img" style="zoom: 33%;" />
+
 ## Devices
 
 ```mermaid
@@ -231,6 +233,8 @@ classDiagram
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;Device page should show a table listing all the registered devices belonging to the account. For each device, the table entry is designed to show all the information of the deivce(model, tag). The energy overview of each device should also be shown in the entry. To provide more intuitive interactions, a selector defining what the table is showing(device info / energy) should be provided in this page.  
 
+![img](pic/devicePage.png)
+
 ## Locations
 
 ```mermaid
@@ -254,6 +258,8 @@ classDiagram
     note for My_Locations_Page "Main Page"
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;Location page is designed to display a list of location cards, each showing the information of one location, including location address, detailed information, and buttons linking to the modification dialog and location energy page, which will be shown later.   
+
+![img](pic/locationPage.png)
 
 ## EnergyInfo
 
@@ -301,7 +307,7 @@ classDiagram
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;There would be three components/pages of energy information, corresponding to the field of account, device, location. Account information page would show the overview of all the energy usage of all locations registered by the customer. It should also provide date range selector, display mode, etc. to facilitate various choices of view for the energy/fee consumption. Location energy page is designed similarly, adding an extra barchart comparing the energy information between current location and other locations with a close number of square feet. It also should provide vairous selection of displayed view. Device Event and Energy are set to be components of the device information page. Triggered by the buttons of the entry in device table, they would show the energy consumption on daily/monthly basis, and the event(Turned on/off, door opened/closed, etc.) genreated by the device.
 
-
+![img](pic/energyInfoPage.png)
 
 
 
