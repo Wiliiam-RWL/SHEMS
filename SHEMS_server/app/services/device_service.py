@@ -1,3 +1,4 @@
+from datetime import datetime
 from ..db.database import Database
 from sqlalchemy import text
 from ..services.customer_service import get_customer_id
@@ -33,7 +34,7 @@ def get_customer_device(email):
                     "location_unit_number": result[9],
                     "location_city": result[10],
                     "location_zipcode": result[11],
-                    "in_use": result[12]
+                    "in_use": result[12],
                 }
             )
     return res
@@ -80,3 +81,36 @@ def get_all_device_model():
     else:
         res = []
     return res
+
+
+def get_event_by_device_id(device_id: int, date: datetime):
+    sql_string = """
+    SELECT TIME(event_datetime), event_label, event_number
+    FROM 
+        device_event DE
+    WHERE
+        DE.device_id = :device_id AND
+        DATE(DE.event_datetime) = DATE(:date)
+    """
+    params = {"device_id": device_id, "date": date}
+    result = Database.execute_query(text(sql_string), params).fetchall()
+    events = []
+    idx = -1
+    last_time = ""
+    if result:
+        for res in result:
+            time = str(res[0])
+            if not time == last_time:
+                idx += 1
+                events.append({})
+                events[idx]["time"] = time
+                last_time = time
+            if res[2] is not None:
+                events[idx][res[1]] = res[2]
+            else:
+                activity = events[idx].get("Activity", "")
+                activity += (", " if len(activity) > 0 else "") + res[1]
+                events[idx]["Activity"] = activity
+        return events
+    else:
+        return [{"time": "all", "EnergyReport": 0}]

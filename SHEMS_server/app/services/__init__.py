@@ -12,6 +12,7 @@ from .device_service import (
     add_device,
     delete_device,
     update_device,
+    get_event_by_device_id,
 )
 from .energy_service import (
     get_energy_by_customer_per_day,
