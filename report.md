@@ -2,6 +2,12 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;In this project, we will need to design a web-based Smart Home Energy Management System. The project consists of two parts: database design and system implementation. In this part, we will describe a comprehensive database design. The organization of this part is as follows: In [Section 2](#2-schema-design), we will conduct a needs analysis for the project, followed by table design, as well as assumptions and justifications for the design. [Section 3](#3-database-creation) introduces the detailed creation of the database schema, specifying each table's columns, data types, and constraints. Finally, we will include some testing samples of the schema in [Section 4](#4-sql). 
 
+Here is github repo link to our project:
+
+Frontend: https://github.com/yangfan2001/shemsapp
+
+Backend: https://github.com/Wiliiam-RWL/SHEMS
+
 # 2 Schema Design
 
 ## 2.1 Need Analysis
