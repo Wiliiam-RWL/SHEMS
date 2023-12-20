@@ -81,6 +81,9 @@ device_event(**device_id**, **event_label**, **event_datetime**, event_number), 
 ###  2.4.3 Energy Price
 energy_price(**zipcode**, **hour_of_day**, price), *Energy prices vary on hourly and locational basis*   
 
+### 2.4.4 Modifications from the design of part1*
+The last part of the project designed some foreign key constraints for table *device_event* and *device_registered*, but did not specify the on delete action for them. Taking into account of the large amount of data in these table that is associated with *device_register* and *location*, and the logic that if any devices and locations are deleted, the records of the corresponding energy consumption should be reserved (in order to show the correct energy statistic charts), 'in_use' attributes are added into these table. When some locations or devices are deleted, 'in_use' column are set to false, thus preserving the integrity constraints.
+
 # 3 Database Creation
 *In this part, we choose MySQL to implement the schema.*  
 
@@ -430,3 +433,4 @@ LIMIT
     1;
 ```
 ![sql6](pic/sql6.png)
+
