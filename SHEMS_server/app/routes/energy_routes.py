@@ -10,6 +10,7 @@ from ..services import (
     get_energy_of_all_devices,
     get_energy_of_all_device_per_day,
     get_energy_by_location_device_type,
+get_similar_location_energy
 )
 from datetime import datetime
 
@@ -152,6 +153,24 @@ def getEnergyPerDayByDeviceID():
     device_id = request.args.get("device_id")
 
     per_day = get_energy_of_all_device_per_day(customer_id, device_id, start, end)
+    if per_day is not None:
+        return jsonify(per_day), 200
+    else:
+        return jsonify([]), 200
+
+
+
+@energy_blueprint.route("/location/similar", methods=["GET"])
+@jwt_required()
+def getLocationSimilarEnergyInfo():
+    # Retrieve 'start' and 'end' from the query parameters
+    start = request.args.get("start")
+    end = request.args.get("end")
+    start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
+    location_id = request.args.get("location_id")
+
+    per_day = get_similar_location_energy(location_id, start, end)
     if per_day is not None:
         return jsonify(per_day), 200
     else:

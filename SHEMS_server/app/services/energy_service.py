@@ -286,3 +286,34 @@ def get_energy_of_all_device_per_day(
         return energy
     else:
         return None
+
+
+def get_similar_location_energy(location_id, start, end):
+    sql_string = """
+    SELECT
+    l.location_id,
+    COALESCE(ROUND(SUM(ep.price * de.event_number),4), 0) as monthlyCostSum,
+    l.square_feet
+FROM
+    location l
+    LEFT JOIN device_registered dr ON dr.location_id = l.location_id
+    LEFT JOIN device_event de ON de.device_id = dr.device_id
+        AND de.event_label = 'EnergyReport'
+        AND de.event_datetime BETWEEN :start AND :end
+    LEFT JOIN energy_price ep ON ep.zipcode = l.location_zipcode
+        AND ep.hour_of_day = HOUR(de.event_datetime)
+    INNER JOIN (SELECT square_feet FROM location WHERE location_id = :location_id) as ref ON
+        l.square_feet BETWEEN ref.square_feet * 0.9 AND ref.square_feet * 1.1
+GROUP BY
+    l.location_id;
+    """
+    params = {"start": start, "end": end, "location_id": location_id}
+    results = Database.execute_query(text(sql_string), params=params).fetchall()
+
+    energy = []
+    if results:
+        for res in results:
+            energy.append({"location_id": res[0], "cost": res[1],"square_feet": res[2]})
+        return energy
+    else:
+        return None
