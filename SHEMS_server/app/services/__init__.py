@@ -23,4 +23,9 @@ from .energy_service import (
     get_energy_of_all_device_per_day,
     get_energy_by_location_device_type,
 )
-from .price_service import get_price_of_locations, get_price_of_each_device_type
+from .price_service import (
+get_price_of_locations,
+get_price_of_each_device_type,
+get_price_by_customer_per_month,
+get_price_by_customer_per_day
+)
