@@ -546,3 +546,15 @@ const handleClickEnergy = () => {
 
 # Conclusion
 &nbsp;&nbsp;&nbsp;&nbsp;In conclusion, this report meticulously details the development of a web-based Smart Home Energy Management System, from its database design to the practical implementation of both backend and frontend components. Utilizing a robust tech stack comprising Python, Flask, MySQL, React, and TypeScript, the system is designed to efficiently manage and monitor home energy usage. The project's implementation, underscored by security measures like SQL injection prevention and JWT authentication, demonstrates a sophisticated and user-friendly solution for energy management. The integration of various technologies and best practices in this project facilitate the team's understanding of development of database applications.
+
+# Appendix: Pre-view of (part of) Pages
+
+![Login](pic/Login.png)
+![Register](pic/Register.png)
+![Account](pic/Account.png)
+![Device](pic/Device.png)
+![Location](pic/Location.png)
+![DeviceEnergy](pic/DeviceEnergy.png)
+![DeviceEvent](pic/DeviceEvent.png)
+![Energy1](pic/Energy1.png)
+![Energy2](pic/Energy2.png)
