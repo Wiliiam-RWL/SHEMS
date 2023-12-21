@@ -1,12 +1,10 @@
 # 1 Introduction
 
-&nbsp;&nbsp;&nbsp;&nbsp;In this project, we will need to design a web-based Smart Home Energy Management System. The project consists of two parts: database design and system implementation. In this part, we will describe a comprehensive database design. The organization of this part is as follows: In [Section 2](#2-schema-design), we will conduct a needs analysis for the project, followed by table design, as well as assumptions and justifications for the design. [Section 3](#3-database-creation) introduces the detailed creation of the database schema, specifying each table's columns, data types, and constraints. Finally, we will include some testing samples of the schema in [Section 4](#4-sql). 
-
-Here is github repo link to our project:
-
-Frontend: https://github.com/yangfan2001/shemsapp
-
-Backend: https://github.com/Wiliiam-RWL/SHEMS
+&nbsp;&nbsp;&nbsp;&nbsp; In this project, a web-based Smart Home Energy Management System is designed and implemented. The project consists of two parts: database design and system implementation. In the first half of this report, a detailed description and justification of the design of the database schema is presented. In the other half, an comprehensive overview of the design and implementation of the web system is described.   
+&nbsp;&nbsp;&nbsp;&nbsp;This report is organized as follows: In [Section 2](#2-schema-design), we conducted a comprehensive needs analysis for the project, followed by table design, as well as assumptions and justifications for the design. [Section 3](#3-database-creation) introduces the detailed creation of the database schema, specifying each table's columns, data types, and constraints. A description of the design of the web system, including the structure and functionalities of each page, is presented in [Section 4](#4-basic-pages-and-functions-design). Finally, the key technologies utilized to realize the system is concluded by [Section 5](#5-backend) and [Section 6](#6-frontend), corresponding to the backend and the frontend.   
+&nbsp;&nbsp;&nbsp;&nbsp;The github repositories link to our project:
+Frontend: https://github.com/yangfan2001/shemsapp,
+Backend: https://github.com/Wiliiam-RWL/SHEMS.
 
 # 2 Schema Design
 
@@ -174,7 +172,7 @@ CREATE TABLE energy_price(
 );
 ```
 
-# Basic Pages and Functions Design
+# 4 Basic Pages and Functions Design
 &nbsp;&nbsp;&nbsp;&nbsp;All the pages, excluding the login and register page, will require login. The server should detect if the user have logged in to the system, if not, they should be redirected to login page.  
 ```mermaid
 graph TD;
@@ -188,7 +186,7 @@ Function --> Account
 Account -->|Log out| Login
 ```
 
-## Account
+## 4.1 Account
 
 ```mermaid
 classDiagram
@@ -208,7 +206,7 @@ classDiagram
 
 <img src="pic/accountPage.png" alt="img" style="zoom: 33%;" />
 
-## Devices
+## 4.2 Devices
 
 ```mermaid
 classDiagram
@@ -241,7 +239,7 @@ classDiagram
 
 ![img](pic/devicePage.png)
 
-## Locations
+## 4.3 Locations
 
 ```mermaid
 classDiagram
@@ -267,7 +265,7 @@ classDiagram
 
 ![img](pic/locationPage.png)
 
-## EnergyInfo
+## 4.4 EnergyInfo
 
 ```mermaid
 classDiagram
@@ -317,13 +315,13 @@ classDiagram
 
 
 
-# Backend
+# 5 Backend
 
-## Tech Stack
+## 5.1 Tech Stack
 
 For our project, we've chosen a combination of Python, Flask, and MySQL, hosted on AWS. This stack provides a robust and scalable foundation for our backend services.
 
-## Database Access 
+## 5.2 Database Access 
 
 To ensure data integrity and concurrency, we implement transactions for executing SQL commands. This approach maintains data consistency, particularly when handling multiple simultaneous requests to modify the database.
 
@@ -360,7 +358,7 @@ After executing SQL commands, we close the session. This practice helps to manag
         database.Database.close_session()
 ```
 
-## Backend Structure
+## 5.3 Backend Structure
 
 Our backend is organized around service modules, each corresponding to a specific database table API and its functionalities. We have developed six key services:
 
@@ -375,7 +373,7 @@ In these services, we employ the `Database` method for SQL access and use `handl
 
 Each service has corresponding routes which preprocess parameters, call various service methods, and return responses to the client.
 
-## Cross-Sight Protection
+## 5.4 Cross-Site Protection
 
 we use `flask_cors` in our backend server, by writing code like below, we are able to only allow request that from our listed origin can visit our server:
 
@@ -387,7 +385,7 @@ origins = [
 CORS(app, resources={r"/*": {"origins": origins}})
 ```
 
-## SQL Injection Prevention
+## 5.5 SQL Injection Prevention
 
 Our approach to preventing SQL injection is centered around avoiding the direct concatenation of user inputs into SQL queries. Instead, we employ a method that uses placeholders and parameters, which significantly enhances security. This strategy not only prevents SQL injection attacks but also helps in filtering out potentially harmful characters like backticks (`), double quotes ("), and semicolons (;).
 
@@ -404,11 +402,11 @@ def add_device(location_id, model_id, tag):
 
 In this example, we demonstrate how a new device is added to a specific location. By using this method, we effectively mitigate the risk of SQL injection, ensuring that our database interactions are not only secure but also robust against malicious inputs.
 
-## Password
+## 5.6 Password
 
 We store passwords as MD5 hash encrypted values in our database for enhanced security.
 
-## Using JWT for Authentication
+## 5.7 Using JWT for Authentication
 
 Our API employs JSON Web Tokens (JWTs) to ensure secure user authentication. The process is straightforward: the frontend includes the token information in the request header. On the backend, we utilize the `@jwt_required()` decorator in Python to authenticate user credentials. Here’s an illustrative example:
 
@@ -422,6 +420,129 @@ def getEnergyPerDayByDeviceID():
 
 In scenarios where the frontend sends an expired token or fails to include a token, the system automatically returns a 403 (Forbidden) or 401 (Unauthorized) response. This prompts users to re-login, ensuring that the backend always operates with valid tokens. Once we receive a valid token, we use `get_jwt_identity()` to identify the requesting user, which is crucial for processing subsequent service API requests. This mechanism not only secures our API but also streamlines the user validation process, making our backend more robust and user-friendly.
 
-## Database
+## 5.8 Database
 
 We utilize MySQL and AWS RDS for a cloud-based database solution, offering easy integration and enhanced security through AWS security settings.
+
+# 6 Frontend
+
+## 6.1 Packages
+&nbsp;&nbsp;&nbsp;&nbsp; This project utilized React+Type Script to implement all front-end pages. The basic components (table, list, etc.) are customized from MUI Libraries. And the charts(Bar, Pie, Line Charts) are drawn with Recharts API.  
+
+## 6.2 Connection with Server
+&nbsp;&nbsp;&nbsp;&nbsp; All of the user inputs and request are gathered at the front end pages, and sent to a localhost port running the server by Axios. The logic of such process are described as follows:  
+1. Gather user input
+User input includes form values, button clicking events, date range selection, etc. These information are all gathered by the components of front-end.  
+2. Sending request to server  
+After getting the user input, the corresponding component sends http request to the server:
+```js
+await addLocation(postData, token, email)
+        .then((res) => {
+          setSuccessSnackbar(true);
+          window.location.href = "/location";
+        })
+        .catch((error) => {
+          setFailSnackbar(true);
+          setErrorInfo(error.data);
+        });
+```
+The request functions are all implemented in the folder 'src/services', providing a good practice of seperating functional procedures and GUI component:
+```js
+export const addLocation = async (data: AddLocationData, token: string, email:string) => {
+  const params = {
+    // handling params
+  }
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  };
+  return axiosInstance.post(`${constants.ENDPOINT_LOCATION_URL}/add`, params, config);
+}
+```
+3. Handling request and response with Axios
+The Axios libraries are used to hanlde request and response across the front-end and the back-end, the detailed implementation can be seen in the source code: 'src/services/axiosConfig.ts'
+```js
+axiosInstance.interceptors.request.use(
+    config => {
+        const token = sessionStorage.getItem('token');
+        // ... handling request
+    }
+);
+
+axiosInstance.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response.status === 401 || error.response.status === 403) {
+            // clear token
+            sessionStorage.clear();
+            const path = window.location.pathname;
+            // ... handling response
+        }
+    }
+);
+
+export default axiosInstance;
+```
+
+## 6.3 Pages Implementation
+### 6.3.1 Components Based Page Design
+&nbsp;&nbsp;&nbsp;&nbsp;The implementation of the the website centers around building a collection of independent, reusable modules. This design approach promotes reusability and composability, allowing components like charts, date pickers, and form controls to be used across various parts of the application. For example, the MyLocationPage is composed of a list of components named 'LocationCard', each location card displays one location with its detailed information, and handle the jump to its energy usage pages. 
+![location](pic/Location.png)
+
+### 6.3.2 State Management
+&nbsp;&nbsp;&nbsp;&nbsp;Thes pages initialize and manage various states (like energyLocationDay, displayLocation, locations, displayData, etc.) to keep track of the data and user selections.
+They fetche data from external services or APIs (getCustomerEnergyPerLocationPerDay, getCustomerLocation) to populate these states. This is done in useEffect hooks to ensure that data fetching is triggered at appropriate times, such as on component mount or when dependencies change:
+```js
+const [locations, setLocations] = useState([]);
+// other states...
+useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await getCustomerLocation();
+        setLocations(response.data);
+        console.log(locations);
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+      }
+    };
+
+    fetchLocations();
+  }, []); // Empty dependency array means this runs once on mount
+// displaying components..
+```
+
+### 6.3.3 Conditional Rendering
+Based on the states, the pages conditionally render different components or displays data in various formats (like charts or graphs).Components like EnergyBarChart or LocationDeviceTypeChart  take props related to the selected data range or location and render visual representations of the data.
+```js
+// state definition
+const [displayMode, setDisplayMode] = React.useState<"day" | "month">("day");
+// handling state changes
+const handleDisplayMode = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value === "day") {
+      setDisplayMode("day");
+    } else {
+      setDisplayMode("month");
+    }
+};
+// conditional rendering
+<EnergyBarChart
+    // other properties
+    groupBy={displayMode}
+/>
+```
+
+### 6.3.4 Navigation and Routing
+&nbsp;&nbsp;&nbsp;&nbsp;The page uses routing (with useNavigate and useLocation from react-router-dom) to navigate to different pages or to maintain state across navigation (pre-selection of location_id when jumpping to locatino energy infomation page).
+```js
+// Location Card Component:
+const handleClickEnergy = () => {
+    navigate("/energy/location", { state: { locationID: Props.locationID } });
+};
+
+// Route setting:
+<Route path="energy/location" element={<LocationEnergyPage />} />
+```
+
+# Conclusion
+&nbsp;&nbsp;&nbsp;&nbsp;In conclusion, this report meticulously details the development of a web-based Smart Home Energy Management System, from its database design to the practical implementation of both backend and frontend components. Utilizing a robust tech stack comprising Python, Flask, MySQL, React, and TypeScript, the system is designed to efficiently manage and monitor home energy usage. The project's implementation, underscored by security measures like SQL injection prevention and JWT authentication, demonstrates a sophisticated and user-friendly solution for energy management. The integration of various technologies and best practices in this project facilitate the team's understanding of development of database applications.

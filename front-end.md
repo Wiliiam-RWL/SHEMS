@@ -24,16 +24,7 @@ The request functions are all implemented in the folder 'src/services', providin
 ```js
 export const addLocation = async (data: AddLocationData, token: string, email:string) => {
   const params = {
-    location_street_num: data.streetNum,
-    location_street_name: data.streetName,
-    location_unit_number: data.unitNumber,
-    location_city: data.city,
-    location_state: data.state,
-    location_zip_code: data.zipCode,
-    square_feet: data.squareFeet,
-    num_bedrooms: data.numBed,
-    num_occupants: data.numOccupants,
-    email:email
+    // handling params
   }
   const config = {
     headers: {
@@ -44,3 +35,35 @@ export const addLocation = async (data: AddLocationData, token: string, email:st
 }
 ```
 3. Handling request and response with Axios
+The Axios libraries are used to hanlde request and response across the front-end and the back-end, the detailed implementation can be seen in the source code: 'src/services/axiosConfig.ts'
+```js
+axiosInstance.interceptors.request.use(
+    config => {
+        const token = sessionStorage.getItem('token');
+        // ... handling request
+    }
+);
+
+axiosInstance.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response.status === 401 || error.response.status === 403) {
+            // clear token
+            sessionStorage.clear();
+            const path = window.location.pathname;
+            // ... handling response
+        }
+    }
+);
+
+export default axiosInstance;
+```
+
+## Pages Implementation
+### Components Based Page Design
+&nbsp;&nbsp;&nbsp;&nbsp;The implementation of the the website centers around building a collection of independent, reusable modules. This design approach promotes reusability and composability, allowing components like charts, date pickers, and form controls to be used across various parts of the application. For example, the MyLocationPage is composed of a list of components named 'LocationCard', each location card displays one location with its detailed information, and handle the jump to its energy usage pages. 
+![location](pic/Location.png)
+
+### State Management
+&nbsp;&nbsp;&nbsp;&nbsp;Thes page initialize and manage various states (like energyLocationDay, displayLocation, locations, displayData, etc.) to keep track of the data and user selections.
+They fetche data from external services or APIs (getCustomerEnergyPerLocationPerDay, getCustomerLocation) to populate these states. This is done in useEffect hooks to ensure that data fetching is triggered at appropriate times, such as on component mount or when dependencies change:
